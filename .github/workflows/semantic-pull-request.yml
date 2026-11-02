@@ -1,4 +1,4 @@
-name: Semantic PR
+name: Check
 on:
   pull_request:
     branches: ["**"]
@@ -27,3 +27,5 @@ jobs:
         uses: step-security/action-semantic-pull-request@75d2dd5deafa3e9fccc1626ecd58d076ed1d2c79 # v6.1.2
         env:
           GITHUB_TOKEN: ${{ github.token }}
+        with:
+          validateSingleCommit: true
