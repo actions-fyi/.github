@@ -13,6 +13,7 @@ defaults:
 
 env:
   SCHEMA_URL: https://docs.renovatebot.com/renovate-schema.json
+  UPSTREAM: github>matfax/.github
 
 jobs:
   renovate:
@@ -48,14 +49,14 @@ jobs:
           config_file_path: ${{ join(fromJSON(steps.files.outputs.files), ' ') }}
 
   check:
-    name: Check Renovate Schema
+    name: Check Renovate Upstream
     runs-on: ubuntu-latest
     concurrency:
       group: renovate-check-${{ github.ref }}
     permissions:
       contents: read # Read the Renovate configs
     outputs:
-      missing: ${{ steps.schema.outputs.missing }}
+      missing: ${{ steps.upstream.outputs.missing }}
     steps:
       - name: Harden the runner (Audit all outbound calls)
         uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
@@ -66,30 +67,37 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
-      - name: Find Missing Schema
-        id: schema
-        run: >-
-          echo "missing=$(git ls-files --
-          renovate.json .github/renovate.json .gitlab/renovate.json
-          .renovaterc .renovaterc.json default.json
+      - name: Find Missing Upstream
+        id: upstream
+        # default.json is the upstream preset itself, so it only needs $schema
+        run: |
+          git ls-files -- \
+            renovate.json .github/renovate.json .gitlab/renovate.json \
+            .renovaterc .renovaterc.json default.json \
           | while read -r file; do
-          [[ "$(jq -r '.["$schema"] // empty' "$file")" == "$SCHEMA_URL" ]] || echo "$file";
-          done
-          | jq -Rnc '[inputs]')" >> "$GITHUB_OUTPUT"
-      - name: Fail on Missing Schema
+            jq -c --arg file "$file" --arg url "$SCHEMA_URL" --arg upstream "$UPSTREAM" '
+              [ (if .["$schema"] == $url then empty else "$schema" end),
+                (if $file == "default.json" or any(.extends[]?;
+                    sub("^local>"; "github>") | . == $upstream or startswith($upstream + "#"))
+                  then empty else "extends" end) ]
+              | select(length > 0) | {file: $file, missing: .}' "$file"
+          done \
+          | jq -sc . | sed 's/^/missing=/' >> "$GITHUB_OUTPUT"
+      - name: Fail on Missing Upstream
         if: >-
-          steps.schema.outputs.missing != '[]' && (github.event_name == 'push'
+          steps.upstream.outputs.missing != '[]' && (github.event_name == 'push'
           || github.event.pull_request.head.repo.full_name != github.repository)
         env:
-          MISSING: ${{ steps.schema.outputs.missing }}
+          MISSING: ${{ steps.upstream.outputs.missing }}
         run: |
-          jq -r '.[]' <<< "$MISSING" | while read -r file; do
-            echo "::error file=$file::Missing \"\$schema\": \"$SCHEMA_URL\""
-          done
+          jq -r --arg url "$SCHEMA_URL" --arg upstream "$UPSTREAM" '.[]
+            | "::error file=\(.file)::Missing " + (.missing | map(
+                if . == "$schema" then "\"$schema\": \"\($url)\""
+                else "\"\($upstream)\" in \"extends\"" end) | join(" and "))' <<< "$MISSING"
           exit 1
 
   enforce:
-    name: Enforce Renovate Schema
+    name: Enforce Renovate Upstream
     needs: check
     if: >-
       needs.check.outputs.missing != '[]' && github.event_name == 'pull_request'
@@ -98,7 +106,7 @@ jobs:
     concurrency:
       group: renovate-enforce-${{ github.ref }}
     permissions:
-      contents: write # Push the added $schema to the pull request branch
+      contents: write # Push the enforced config to the pull request branch
     steps:
       - name: Harden the runner (Audit all outbound calls)
         uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
@@ -109,21 +117,25 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
-      - name: Add Missing Schema
+      - name: Add Missing Upstream
         env:
           MISSING: ${{ needs.check.outputs.missing }}
         run: |
-          jq -r '.[]' <<< "$MISSING" | while read -r file; do
-            jq --arg url "$SCHEMA_URL" '{"$schema": $url} + del(.["$schema"])' "$file" > "$RUNNER_TEMP/config.json"
+          jq -c '.[]' <<< "$MISSING" | while read -r entry; do
+            file=$(jq -r '.file' <<< "$entry")
+            jq --argjson entry "$entry" --arg url "$SCHEMA_URL" --arg upstream "$UPSTREAM" '
+              (if $entry.missing | any(. == "$schema") then {"$schema": $url} + del(.["$schema"]) else . end)
+              | (if $entry.missing | any(. == "extends") then .extends = [$upstream] + (.extends // []) else . end)
+            ' "$file" > "$RUNNER_TEMP/config.json"
             mv "$RUNNER_TEMP/config.json" "$file"
-            echo "::notice file=$file::Added \"\$schema\": \"$SCHEMA_URL\""
+            echo "::notice file=$file::Added $(jq -r '.missing | join(" and ")' <<< "$entry")"
           done
-      - name: Commit Schema
+      - name: Commit Upstream
         uses: step-security/ghcommit-action@4f593fe8d019aa27a8c310bc6ee2ffec8d7e53f4 # v0.2.23
         with:
-          commit_message: "chore(renovate): add $schema to Renovate config"
+          commit_message: "chore(renovate): enforce upstream Renovate config"
           repo: ${{ github.repository }}
           branch: ${{ github.head_ref }}
-          file_pattern: ${{ join(fromJSON(needs.check.outputs.missing), ' ') }}
+          file_pattern: ${{ join(fromJSON(needs.check.outputs.missing).*.file, ' ') }}
         env:
           GITHUB_TOKEN: ${{ github.token }}
