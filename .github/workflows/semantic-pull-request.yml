@@ -1,0 +1,29 @@
+name: Semantic PR
+on:
+  pull_request:
+    branches: ["**"]
+    types:
+      - opened
+      - edited
+      - reopened
+      - synchronize
+
+permissions: {}
+
+jobs:
+  title:
+    name: PR Title
+    runs-on: ubuntu-latest
+    concurrency:
+      group: semantic-pull-request-${{ github.ref }}
+    permissions:
+      pull-requests: read # Read the pull request title
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
+        with:
+          egress-policy: audit
+      - name: Check Conventional Commits Title
+        uses: step-security/action-semantic-pull-request@75d2dd5deafa3e9fccc1626ecd58d076ed1d2c79 # v6.1.2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
