@@ -13,10 +13,13 @@ defaults:
 jobs:
   claude:
     name: Claude Review
-    # Drafts and bot PRs (e.g. Renovate) are skipped. Fork PRs get no OIDC token, so they can't reach OpenBao.
+    # Skipped: drafts, bot PRs, and dependency updates (Renovate or Dependabot branches, even when
+    # opened by a user account). Fork PRs get no OIDC token, so they can't reach OpenBao.
     if: >-
       !github.event.pull_request.draft
       && github.event.pull_request.user.type != 'Bot'
+      && !startsWith(github.head_ref, 'renovate/')
+      && !startsWith(github.head_ref, 'dependabot/')
       && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     concurrency:
