@@ -11,6 +11,9 @@ defaults:
   run:
     shell: bash
 
+env:
+  SCHEMA_URL: https://docs.renovatebot.com/renovate-schema.json
+
 jobs:
   renovate:
     name: Renovate Config
@@ -43,4 +46,75 @@ jobs:
         with:
           strict: true
           config_file_path: ${{ join(fromJSON(steps.files.outputs.files), ' ') }}
-          
+
+  check:
+    name: Check Renovate Schema
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
+    runs-on: ubuntu-latest
+    concurrency:
+      group: renovate-schema-${{ github.ref }}
+    permissions:
+      contents: read # Read the Renovate configs
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
+        with:
+          egress-policy: audit
+      - name: Checkout Repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check Schema
+        run: |
+          mapfile -t files < <(git ls-files -- \
+            renovate.json .github/renovate.json .gitlab/renovate.json \
+            .renovaterc .renovaterc.json default.json)
+          status=0
+          for file in "${files[@]}"; do
+            if [[ "$(jq -r '.["$schema"] // empty' "$file")" != "$SCHEMA_URL" ]]; then
+              echo "::error file=$file::Missing \"\$schema\": \"$SCHEMA_URL\""
+              status=1
+            fi
+          done
+          exit "$status"
+
+  fix:
+    name: Fix Renovate Schema
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    concurrency:
+      group: renovate-schema-${{ github.ref }}
+    permissions:
+      contents: write # Push the fix to the pull request branch
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
+        with:
+          egress-policy: audit
+      - name: Checkout Repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.head_ref }}
+          persist-credentials: false
+      - name: Add Missing Schema
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mapfile -t files < <(git ls-files -- \
+            renovate.json .github/renovate.json .gitlab/renovate.json \
+            .renovaterc .renovaterc.json default.json)
+          for file in "${files[@]}"; do
+            if [[ "$(jq -r '.["$schema"] // empty' "$file")" != "$SCHEMA_URL" ]]; then
+              jq --arg url "$SCHEMA_URL" '{"$schema": $url} + del(.["$schema"])' "$file" > "$RUNNER_TEMP/config.json"
+              mv "$RUNNER_TEMP/config.json" "$file"
+              echo "::notice file=$file::Added \"\$schema\": \"$SCHEMA_URL\""
+            fi
+          done
+          if git diff --quiet; then
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git commit --all --message "chore(renovate): add \$schema to Renovate config"
+          git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:refs/heads/${HEAD_REF}"
