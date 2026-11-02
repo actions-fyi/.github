@@ -3,6 +3,7 @@ on:
   push:
     branches: [main]
   pull_request:
+    branches: ["**"]
 
 permissions: {}
 
@@ -11,7 +12,7 @@ jobs:
     name: GitHub Actions
     runs-on: ubuntu-latest
     concurrency:
-      group: lint-${{ github.ref }}
+      group: actionslint-${{ github.ref }}
     permissions:
       contents: read # Read workflow files
       pull-requests: write # For review permission
@@ -20,10 +21,9 @@ jobs:
         uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
         with:
           egress-policy: audit
-
       - name: Checkout Repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Run actionlint
+      - name: Lint GitHub Actions Workflows
         uses: kjanat/actionlint@08bb2c4f0d039744455b87aef1c647fb8b66d37b # v1.17.0
         with:
           review: true
