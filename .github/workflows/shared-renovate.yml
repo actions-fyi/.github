@@ -1,0 +1,42 @@
+name: Shared Validate
+on:
+  workflow_call:
+
+permissions: {}
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  renovate:
+    name: Renovate Config
+    runs-on: ubuntu-latest
+    concurrency:
+      group: lint-${{ github.ref }}
+    permissions:
+      contents: read # Read workflow files
+      pull-requests: write # For review permission
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
+        with:
+          egress-policy: audit
+      - name: Checkout Repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Find Configs
+        id: files
+        run: >-
+          echo "files=$(git ls-files --
+          renovate.json renovate.jsonc renovate.json5
+          .github/renovate.json .github/renovate.jsonc .github/renovate.json5
+          .gitlab/renovate.json .gitlab/renovate.jsonc .gitlab/renovate.json5
+          .renovaterc .renovaterc.json .renovaterc.jsonc .renovaterc.json5
+          default.json
+          | jq -Rnc '[inputs]')" >> "$GITHUB_OUTPUT"
+      - name: Validate Config
+        if: steps.files.outputs.files != ''
+        uses: suzuki-shunsuke/github-action-renovate-config-validator@1e1604219a6b38ae9a10aff42a28a3656322c31a # v2.4.1
+        with:
+          strict: true
+          config_file_path: ${{ join(fromJSON(steps.files.outputs.files), ' ') }}

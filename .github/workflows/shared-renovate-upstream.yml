@@ -1,9 +1,5 @@
-name: Upstream
+name: Shared Upstream
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: ["**"]
   workflow_call:
 
 permissions: {}
