@@ -78,14 +78,14 @@ jobs:
           done
           exit "$status"
 
-  fix:
-    name: Fix Renovate Schema
+  enforce:
+    name: Enforce Renovate Schema
     if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     concurrency:
       group: renovate-schema-${{ github.ref }}
     permissions:
-      contents: write # Push the fix to the pull request branch
+      contents: write # Push the added $schema to the pull request branch
     steps:
       - name: Harden the runner (Audit all outbound calls)
         uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
