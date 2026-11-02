@@ -29,11 +29,18 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Find Configs
         id: files
-        run: echo "files=$(git ls-files -- … | jq -Rnc '[inputs]')" >> "$GITHUB_OUTPUT"
+        run: >-
+          echo "files=$(git ls-files --
+          renovate.json renovate.jsonc renovate.json5
+          .github/renovate.json .github/renovate.jsonc .github/renovate.json5
+          .gitlab/renovate.json .gitlab/renovate.jsonc .gitlab/renovate.json5
+          .renovaterc .renovaterc.json .renovaterc.jsonc .renovaterc.json5
+          default.json
+          | jq -Rnc '[inputs]')" >> "$GITHUB_OUTPUT"
       - name: Validate Config
         if: steps.files.outputs.files != ''
         uses: suzuki-shunsuke/github-action-renovate-config-validator@1e1604219a6b38ae9a10aff42a28a3656322c31a # v2.4.1
         with:
           strict: true
-          config_file_path: ${{ steps.files.outputs.files }}
+          config_file_path: ${{ join(fromJSON(steps.files.outputs.files), ' ') }}
           
