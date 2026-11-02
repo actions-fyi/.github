@@ -56,17 +56,35 @@ jobs:
           BAO_ADDR: https://secrets.actions.fyi
           BAO_AUDIENCE: https://secrets.actions.fyi
         run: |
+          # Runs one request and leaves its body in RESPONSE. On a non-2xx status it fails the step,
+          # naming the request and the service's error message (which never contains a token).
+          request() {
+            local name=$1 out status errors
+            shift
+            out=$(curl -sS -w '\n%{http_code}' "$@") || { echo "::error::$name: request failed"; exit 1; }
+            status=${out##*$'\n'}
+            RESPONSE=${out%$'\n'*}
+            if [[ "$status" != 2* ]]; then
+              errors=$(jq -r '(.errors // [.message // empty]) | join("; ") | gsub("\\s+"; " ")' <<< "$RESPONSE" 2>/dev/null) \
+                || errors="not a JSON response, so it was probably blocked before reaching the service (e.g. by Cloudflare)"
+              echo "::error::$name failed with HTTP $status: ${errors:-no error message}"
+              exit 1
+            fi
+          }
           audience=$(jq -rn --arg a "$BAO_AUDIENCE" '$a | @uri')
-          jwt=$(curl -fsS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=$audience" | jq -r '.value // empty')
-          [[ -n "$jwt" ]] || { echo "::error::Could not get a GitHub OIDC token"; exit 1; }
+          request "GitHub OIDC token request" -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=$audience"
+          jwt=$(jq -r '.value // empty' <<< "$RESPONSE")
+          [[ -n "$jwt" ]] || { echo "::error::GitHub returned no OIDC token"; exit 1; }
           echo "::add-mask::$jwt"
-          bao_token=$(jq -n --arg jwt "$jwt" '{role: "claude", jwt: $jwt}' \
-            | curl -fsS -X POST --data @- "$BAO_ADDR/v1/auth/github-actions/login" \
-            | jq -r '.auth.client_token // empty')
+          request "OpenBao login" -X POST --data @- "$BAO_ADDR/v1/auth/github-actions/login" \
+            < <(jq -n --arg jwt "$jwt" '{role: "claude", jwt: $jwt}')
+          bao_token=$(jq -r '.auth.client_token // empty' <<< "$RESPONSE")
           [[ -n "$bao_token" ]] || { echo "::error::OpenBao login returned no token"; exit 1; }
           echo "::add-mask::$bao_token"
-          secret=$(curl -fsS -H "X-Vault-Token: $bao_token" "$BAO_ADDR/v1/ci/data/claude" | jq -c '.data.data')
+          request "Reading ci/claude from OpenBao" -H "X-Vault-Token: $bao_token" "$BAO_ADDR/v1/ci/data/claude"
+          secret=$(jq -c '.data.data' <<< "$RESPONSE")
+          unset RESPONSE
           token=$(jq -r '.oauth_token // empty' <<< "$secret")
           [[ -n "$token" ]] || { echo "::error::ci/claude in OpenBao has no oauth_token"; exit 1; }
           echo "::add-mask::$token"
