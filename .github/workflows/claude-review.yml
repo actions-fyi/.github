@@ -1,0 +1,97 @@
+name: Review
+on:
+  pull_request:
+    branches: ["**"]
+    types: [opened, synchronize, ready_for_review, reopened]
+
+permissions: {}
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  claude:
+    name: Claude Review
+    # Drafts and bot PRs (e.g. Renovate) are skipped. Fork PRs get no OIDC token, so they can't reach OpenBao.
+    if: >-
+      !github.event.pull_request.draft
+      && github.event.pull_request.user.type != 'Bot'
+      && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    concurrency:
+      group: claude-review-${{ github.ref }}
+      cancel-in-progress: true
+    permissions:
+      contents: read # Check out the pull request
+      pull-requests: write # Post review comments
+      id-token: write # Sign in to OpenBao and to the Claude GitHub App
+    env:
+      CLAUDE_CODE_SUBPROCESS_ENV_SCRUB: "1"
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
+        with:
+          egress-policy: audit
+      - name: Checkout Repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Fetch Claude Token
+        id: claude-token
+        env:
+          BAO_ADDR: https://secrets.actions.fyi
+          BAO_AUDIENCE: https://secrets.actions.fyi
+        run: |
+          audience=$(jq -rn --arg a "$BAO_AUDIENCE" '$a | @uri')
+          jwt=$(curl -fsS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=$audience" | jq -r '.value // empty')
+          [[ -n "$jwt" ]] || { echo "::error::Could not get a GitHub OIDC token"; exit 1; }
+          echo "::add-mask::$jwt"
+          bao_token=$(jq -n --arg jwt "$jwt" '{role: "claude", jwt: $jwt}' \
+            | curl -fsS -X POST --data @- "$BAO_ADDR/v1/auth/github-actions/login" \
+            | jq -r '.auth.client_token // empty')
+          [[ -n "$bao_token" ]] || { echo "::error::OpenBao login returned no token"; exit 1; }
+          echo "::add-mask::$bao_token"
+          secret=$(curl -fsS -H "X-Vault-Token: $bao_token" "$BAO_ADDR/v1/ci/data/claude" | jq -c '.data.data')
+          token=$(jq -r '.oauth_token // empty' <<< "$secret")
+          [[ -n "$token" ]] || { echo "::error::ci/claude in OpenBao has no oauth_token"; exit 1; }
+          echo "::add-mask::$token"
+          expires=$(jq -r '.expires_at // empty' <<< "$secret")
+          unset secret
+          if [[ -z "$expires" ]]; then
+            echo "::warning::ci/claude in OpenBao has no expires_at, so the token's expiry can't be checked"
+          else
+            days=$(( ($(date -ud "$expires" +%s) - $(date -u +%s)) / 86400 ))
+            if (( days < 0 )); then
+              echo "::error::The Claude token expired on $expires. Run claude setup-token and update ci/claude in OpenBao."
+              exit 1
+            elif (( days < 30 )); then
+              echo "::warning::The Claude token expires on $expires (in $days days). Run claude setup-token and update ci/claude in OpenBao."
+            fi
+          fi
+          echo "oauth_token=$token" >> "$GITHUB_OUTPUT"
+      - name: Review Pull Request
+        uses: anthropics/claude-code-action@d535f5172dec02b204866b393d6b20b9b2aaf98d # v1.0.266
+        with:
+          claude_code_oauth_token: ${{ steps.claude-token.outputs.oauth_token }}
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ github.event.pull_request.number }}
+
+            Review this pull request. The PR branch is already checked out.
+
+            Look for:
+            - Bugs and incorrect behaviour, including edge cases and error handling
+            - Security problems: injection, unsafe handling of untrusted input, leaked
+              secrets or credentials, broken authentication or authorization, and unsafe
+              GitHub Actions patterns (untrusted input in run steps, excessive permissions,
+              unpinned actions, dangerous triggers)
+            - Changes that make the code noticeably harder to maintain
+
+            Report only problems that matter. Skip style nitpicks and praise.
+            Put each finding as an inline comment on the line it concerns, then post one
+            short summary comment on the PR. If you find nothing, say so in the summary.
+          claude_args: |
+            --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)"
