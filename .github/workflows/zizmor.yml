@@ -1,7 +1,8 @@
 name: Audit
+
 on:
   push:
-    branches: [main]
+    branches: ["main"]
   pull_request:
     branches: ["**"]
 
@@ -9,9 +10,26 @@ permissions: {}
 
 jobs:
   zizmor:
-    name: Audit
-    uses: ./.github/workflows/shared-zizmor.yml # zizmor: ignore[self-repository] actionlint rejects $/ as of v1.7.12
+    name: CI Config
+    runs-on: ubuntu-latest
     permissions:
-      contents: read # Clone the repository
-      security-events: write # Upload zizmor's SARIF results
-      actions: read # Let upload-sarif read the workflow run
+      security-events: write # Required for upload-sarif (used by zizmor-action) to upload SARIF files.
+      contents: read         # Only needed for private repos. Needed to clone the repo.
+      actions: read          # Only needed for private repos. Needed for upload-sarif to read workflow run info.
+    concurrency:
+      group: zizmor-${{ github.ref }}
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
+        with:
+          egress-policy: audit
+      - name: Checkout Repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Run zizmor 🌈
+        uses: zizmorcore/zizmor-action@53290badfa369cb0bf7ad16342cb62c2fa47ac7b # v0.8.0
+        with:
+          persona: pedantic
+          min-severity: low
+          min-confidence: medium
