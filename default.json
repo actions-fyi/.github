@@ -1,0 +1,23 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Shared Renovate preset, extend with \"github>matfax/.github\"",
+  "extends": [
+    "config:best-practices",
+    "helpers:pinGitHubActionDigestsToSemver",
+    ":gitSignOff",
+    ":enableVulnerabilityAlertsWithAdditionalLabel(security)"
+  ],
+  "labels": ["dependencies"],
+  "packageRules": [
+    {
+      "description": "Merge non-major updates automatically once required checks pass",
+      "matchUpdateTypes": ["minor", "patch", "pin", "pinDigest", "digest"],
+      "automerge": true
+    },
+    {
+      "description": "Major updates wait for a human",
+      "matchUpdateTypes": ["major"],
+      "automerge": false
+    }
+  ]
+}
