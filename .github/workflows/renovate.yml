@@ -48,8 +48,8 @@ jobs:
           strict: true
           config_file_path: ${{ join(fromJSON(steps.files.outputs.files), ' ') }}
 
-  check:
-    name: Check Renovate Upstream
+  upstream:
+    name: Renovate Upstream
     runs-on: ubuntu-latest
     concurrency:
       group: renovate-check-${{ github.ref }}
@@ -98,7 +98,7 @@ jobs:
 
   enforce:
     name: Enforce Renovate Upstream
-    needs: check
+    needs: upstream
     if: >-
       needs.check.outputs.missing != '[]' && github.event_name == 'pull_request'
       && github.event.pull_request.head.repo.full_name == github.repository
