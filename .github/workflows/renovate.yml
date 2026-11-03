@@ -13,7 +13,7 @@ defaults:
 
 env:
   SCHEMA_URL: https://docs.renovatebot.com/renovate-schema.json
-  UPSTREAM: github>matfax/.github
+  UPSTREAM: github>actions-fyi/.github
 
 jobs:
   renovate:

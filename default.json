@@ -1,6 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "description": "Shared Renovate preset, extend with \"github>matfax/.github\"",
+  "description": "Shared Renovate preset, extend with \"github>actions-fyi/.github\"",
   "extends": [
     "config:best-practices",
     "helpers:pinGitHubActionDigestsToSemver",
