@@ -33,7 +33,7 @@ jobs:
     concurrency:
       group: claude-${{ github.event.issue.number || github.event.pull_request.number }}
     permissions:
-      contents: write # Let Claude push commits and branches
+      contents: read # Restrict repository contents to read-only to reduce high-impact agency risk
       pull-requests: write # Let Claude comment on and open pull requests
       issues: write # Let Claude comment on issues
       id-token: write # Sign in to the Claude GitHub App
