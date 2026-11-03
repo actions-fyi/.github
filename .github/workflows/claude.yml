@@ -36,7 +36,7 @@ jobs:
       contents: write # Let Claude push commits and branches
       pull-requests: write # Let Claude comment on and open pull requests
       issues: write # Let Claude comment on issues
-      id-token: write # Sign in to OpenBao and to the Claude GitHub App
+      id-token: write # Sign in to the Claude GitHub App
       actions: read # Let Claude read CI results on pull requests
     env:
       CLAUDE_CODE_SUBPROCESS_ENV_SCRUB: "1"
@@ -50,59 +50,32 @@ jobs:
         with:
           fetch-depth: 1
           persist-credentials: false
-      - name: Fetch Claude Token
-        id: claude-token
+      - name: Check Claude Token
         env:
-          BAO_ADDR: https://secrets.actions.fyi
-          BAO_AUDIENCE: https://secrets.actions.fyi
+          HAS_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN != '' }}
+          EXPIRES_AT: ${{ vars.CLAUDE_CODE_OAUTH_TOKEN_EXPIRES_AT }}
         run: |
-          # Runs one request and leaves its body in RESPONSE. On a non-2xx status it fails the step,
-          # naming the request and the service's error message (which never contains a token).
-          request() {
-            local name=$1 out status errors
-            shift
-            out=$(curl -sS -w '\n%{http_code}' "$@") || { echo "::error::$name: request failed"; exit 1; }
-            status=${out##*$'\n'}
-            RESPONSE=${out%$'\n'*}
-            if [[ "$status" != 2* ]]; then
-              errors=$(jq -r '(.errors // [.message // empty]) | join("; ") | gsub("\\s+"; " ")' <<< "$RESPONSE" 2>/dev/null) \
-                || errors="not a JSON response, so it was probably blocked before reaching the service (e.g. by Cloudflare)"
-              echo "::error::$name failed with HTTP $status: ${errors:-no error message}"
-              exit 1
-            fi
-          }
-          audience=$(jq -rn --arg a "$BAO_AUDIENCE" '$a | @uri')
-          request "GitHub OIDC token request" -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=$audience"
-          jwt=$(jq -r '.value // empty' <<< "$RESPONSE")
-          [[ -n "$jwt" ]] || { echo "::error::GitHub returned no OIDC token"; exit 1; }
-          echo "::add-mask::$jwt"
-          request "OpenBao login" -X POST --data @- "$BAO_ADDR/v1/auth/github-actions/login" \
-            < <(jq -n --arg jwt "$jwt" '{role: "claude", jwt: $jwt}')
-          bao_token=$(jq -r '.auth.client_token // empty' <<< "$RESPONSE")
-          [[ -n "$bao_token" ]] || { echo "::error::OpenBao login returned no token"; exit 1; }
-          echo "::add-mask::$bao_token"
-          request "Reading ci/claude from OpenBao" -H "X-Vault-Token: $bao_token" "$BAO_ADDR/v1/ci/data/claude"
-          secret=$(jq -c '.data.data' <<< "$RESPONSE")
-          unset RESPONSE
-          token=$(jq -r '.oauth_token // empty' <<< "$secret")
-          [[ -n "$token" ]] || { echo "::error::ci/claude in OpenBao has no oauth_token"; exit 1; }
-          echo "::add-mask::$token"
-          expires=$(jq -r '.expires_at // empty' <<< "$secret")
-          unset secret
-          if [[ -z "$expires" ]]; then
-            echo "::warning::ci/claude in OpenBao has no expires_at, so the token's expiry can't be checked"
-          else
-            days=$(( ($(date -ud "$expires" +%s) - $(date -u +%s)) / 86400 ))
-            if (( days < 0 )); then
-              echo "::error::The Claude token expired on $expires. Run claude setup-token and update ci/claude in OpenBao."
-              exit 1
-            elif (( days < 30 )); then
-              echo "::warning::The Claude token expires on $expires (in $days days). Run claude setup-token and update ci/claude in OpenBao."
-            fi
+          # Fails with a clear message instead of letting the action fail on a missing or expired
+          # token. The expiry date is a variable, because a secret's value can't be inspected.
+          renew="Run claude setup-token, then update the CLAUDE_CODE_OAUTH_TOKEN secret and the CLAUDE_CODE_OAUTH_TOKEN_EXPIRES_AT variable."
+          if [[ "$HAS_TOKEN" != true ]]; then
+            echo "::error::The CLAUDE_CODE_OAUTH_TOKEN secret isn't available to this repository. Add it, or give this repository access to the organization secret."
+            exit 1
           fi
-          echo "oauth_token=$token" >> "$GITHUB_OUTPUT"
+          if [[ -z "$EXPIRES_AT" ]]; then
+            echo "::warning::The CLAUDE_CODE_OAUTH_TOKEN_EXPIRES_AT variable isn't set, so the token's expiry can't be checked"
+            exit 0
+          fi
+          expires=$(date -ud "$EXPIRES_AT" +%s) \
+            || { echo "::error::CLAUDE_CODE_OAUTH_TOKEN_EXPIRES_AT isn't a valid date: $EXPIRES_AT"; exit 1; }
+          days=$(( (expires - $(date -u +%s)) / 86400 ))
+          if (( days < 0 )); then
+            echo "::error::The Claude token expired on $EXPIRES_AT. $renew"
+            exit 1
+          elif (( days < 30 )); then
+            echo "::warning::The Claude token expires on $EXPIRES_AT (in $days days). $renew"
+          fi
       - name: Run Claude
         uses: anthropics/claude-code-action@d535f5172dec02b204866b393d6b20b9b2aaf98d # v1.0.266
         with:
-          claude_code_oauth_token: ${{ steps.claude-token.outputs.oauth_token }}
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
