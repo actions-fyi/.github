@@ -3,8 +3,9 @@
   "extends": ["github>matfax/.github"],
   "packageRules": [
     {
-      "description": "Actions are pinned by .github/workflows/actions.lock, so keep readable tags in the workflows",
+      "description": "Actions are pinned by .github/workflows/actions.lock, so keep readable tags; reusable workflows and images are not in the lockfile and stay digest-pinned",
       "matchManagers": ["github-actions"],
+      "matchDepTypes": ["action"],
       "pinDigests": false
     }
   ]
