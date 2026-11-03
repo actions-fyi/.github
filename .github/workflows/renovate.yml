@@ -26,11 +26,11 @@ jobs:
       pull-requests: write # For review permission
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
+        uses: step-security/harden-runner@v2.22.3
         with:
           egress-policy: audit
       - name: Checkout Repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: actions/checkout@v7.0.1
       - name: Find Configs
         id: files
         run: >-
@@ -43,7 +43,7 @@ jobs:
           | jq -Rnc '[inputs]')" >> "$GITHUB_OUTPUT"
       - name: Validate Config
         if: steps.files.outputs.files != ''
-        uses: suzuki-shunsuke/github-action-renovate-config-validator@1e1604219a6b38ae9a10aff42a28a3656322c31a # v2.4.1
+        uses: suzuki-shunsuke/github-action-renovate-config-validator@v2.4.1
         with:
           strict: true
           config_file_path: ${{ join(fromJSON(steps.files.outputs.files), ' ') }}
@@ -59,11 +59,11 @@ jobs:
       missing: ${{ steps.upstream.outputs.missing }}
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
+        uses: step-security/harden-runner@v2.22.3
         with:
           egress-policy: audit
       - name: Checkout Repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: actions/checkout@v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
@@ -109,11 +109,11 @@ jobs:
       contents: write # Push the enforced config to the pull request branch
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
+        uses: step-security/harden-runner@v2.22.3
         with:
           egress-policy: audit
       - name: Checkout Repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: actions/checkout@v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
@@ -131,7 +131,7 @@ jobs:
             echo "::notice file=$file::Added $(jq -r '.missing | join(" and ")' <<< "$entry")"
           done
       - name: Commit Upstream
-        uses: step-security/ghcommit-action@4f593fe8d019aa27a8c310bc6ee2ffec8d7e53f4 # v0.2.23
+        uses: step-security/ghcommit-action@v0.2.23
         with:
           commit_message: "chore(renovate): enforce upstream Renovate config"
           repo: ${{ github.repository }}

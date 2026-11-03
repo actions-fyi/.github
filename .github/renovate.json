@@ -1,4 +1,11 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["github>matfax/.github"]
+  "extends": ["github>matfax/.github"],
+  "packageRules": [
+    {
+      "description": "Actions are pinned by .github/workflows/actions.lock, so keep readable tags in the workflows",
+      "matchManagers": ["github-actions"],
+      "pinDigests": false
+    }
+  ]
 }

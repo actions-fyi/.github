@@ -42,11 +42,11 @@ jobs:
       CLAUDE_CODE_SUBPROCESS_ENV_SCRUB: "1"
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
+        uses: step-security/harden-runner@v2.22.3
         with:
           egress-policy: audit
       - name: Checkout Repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 1
           persist-credentials: false
@@ -76,6 +76,6 @@ jobs:
             echo "::warning::The Claude token expires on $EXPIRES_AT (in $days days). $renew"
           fi
       - name: Run Claude
-        uses: step-security/claude-code-action@f921413b67d52bb040358b3c180b45f823cad94f # v1.0.238
+        uses: step-security/claude-code-action@v1.0.238
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
