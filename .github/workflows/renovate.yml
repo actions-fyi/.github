@@ -43,7 +43,7 @@ jobs:
           | jq -Rnc '[inputs]')" >> "$GITHUB_OUTPUT"
       - name: Validate Config
         if: steps.files.outputs.files != ''
-        uses: suzuki-shunsuke/github-action-renovate-config-validator@1e1604219a6b38ae9a10aff42a28a3656322c31a # v2.4.1
+        uses: step-security/github-action-renovate-config-validator@f86e8c6dded6d048ac71be6def145ed5c8f8157d # v1.1.1
         with:
           strict: true
           config_file_path: ${{ join(fromJSON(steps.files.outputs.files), ' ') }}
