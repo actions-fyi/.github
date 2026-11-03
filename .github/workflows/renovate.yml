@@ -13,7 +13,7 @@ defaults:
 
 env:
   SCHEMA_URL: https://docs.renovatebot.com/renovate-schema.json
-  UPSTREAM: github>matfax/.github
+  UPSTREAM: github>actions-fyi/.github
 
 jobs:
   renovate:
@@ -84,9 +84,7 @@ jobs:
           done \
           | jq -sc . | sed 's/^/missing=/' >> "$GITHUB_OUTPUT"
       - name: Fail on Missing Upstream
-        if: >-
-          steps.upstream.outputs.missing != '[]' && (github.event_name == 'push'
-          || github.event.pull_request.head.repo.full_name != github.repository)
+        if: steps.upstream.outputs.missing != '[]'
         env:
           MISSING: ${{ steps.upstream.outputs.missing }}
         run: |
@@ -96,17 +94,22 @@ jobs:
                 else "\"\($upstream)\" in \"extends\"" end) | join(" and "))' <<< "$MISSING"
           exit 1
 
-  enforce:
-    name: Enforce Renovate Upstream
+  suggest:
+    name: Suggest Renovate Upstream
+    # Suggests the fix on the pull request instead of committing it. The author applies it with
+    # "Commit suggestion", which GitHub signs as their commit and which, unlike a commit made with
+    # the GITHUB_TOKEN, starts the checks again. Fork pull requests get a read-only token, so they
+    # only see the failed check.
     needs: upstream
     if: >-
-      needs.upstream.outputs.missing != '[]' && github.event_name == 'pull_request'
+      !cancelled() && needs.upstream.outputs.missing != '[]' && github.event_name == 'pull_request'
       && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     concurrency:
-      group: renovate-enforce-${{ github.ref }}
+      group: renovate-suggest-${{ github.ref }}
     permissions:
-      contents: write # Push the enforced config to the pull request branch
+      contents: read # Read the Renovate configs
+      pull-requests: write # Post the suggestions
     steps:
       - name: Harden the runner (Audit all outbound calls)
         uses: step-security/harden-runner@v2.22.3
@@ -117,25 +120,53 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
-      - name: Add Missing Upstream
+      - name: Suggest Missing Upstream
         env:
+          GH_TOKEN: ${{ github.token }}
           MISSING: ${{ needs.upstream.outputs.missing }}
+          PR: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
+          # A suggestion can only replace lines that are part of the pull request's diff. When one
+          # hunk covers the whole config (a new file, or a small one that was edited), the fix is a
+          # suggestion on the file. Otherwise it's a comment with the fixed file. Each comment
+          # carries a marker with a hash of the fix, so a later push doesn't post it again.
+          changed=$(gh api --paginate "repos/$GITHUB_REPOSITORY/pulls/$PR/files" --jq '.[] | {filename, patch}' | jq -sc .)
+          posted=$( { gh api --paginate "repos/$GITHUB_REPOSITORY/pulls/$PR/comments" --jq '.[].body'
+                      gh api --paginate "repos/$GITHUB_REPOSITORY/issues/$PR/comments" --jq '.[].body'; } \
+                    | grep -o '<!-- renovate-upstream [^ ]* -->' || true)
+          code='`'
+          fence='```'
           jq -c '.[]' <<< "$MISSING" | while read -r entry; do
             file=$(jq -r '.file' <<< "$entry")
-            jq --argjson entry "$entry" --arg url "$SCHEMA_URL" --arg upstream "$UPSTREAM" '
+            what=$(jq -r --arg upstream "$UPSTREAM" '.missing | map(
+              if . == "$schema" then "`$schema`" else "`\($upstream)` in `extends`" end) | join(" and ")' <<< "$entry")
+            fixed=$(jq --argjson entry "$entry" --arg url "$SCHEMA_URL" --arg upstream "$UPSTREAM" '
               (if $entry.missing | any(. == "$schema") then {"$schema": $url} + del(.["$schema"]) else . end)
               | (if $entry.missing | any(. == "extends") then .extends = [$upstream] + (.extends // []) else . end)
-            ' "$file" > "$RUNNER_TEMP/config.json"
-            mv "$RUNNER_TEMP/config.json" "$file"
-            echo "::notice file=$file::Added $(jq -r '.missing | join(" and ")' <<< "$entry")"
+            ' "$file")
+            marker="<!-- renovate-upstream $(sha256sum <<< "$file:$fixed" | cut -c1-16) -->"
+            if grep -qF "$marker" <<< "$posted"; then
+              echo "::notice file=$file::The fix for $file was already suggested"
+              continue
+            fi
+            lines=$(awk 'END { print NR }' "$file")
+            covered=$(jq -r --arg f "$file" '.[] | select(.filename == $f) | .patch // empty' <<< "$changed" \
+              | sed -nE 's/^@@ -[0-9,]+ \+([0-9]+)(,([0-9]+))? @@.*/\1 \3/p' \
+              | awk -v n="$lines" '{ len = ($2 == "" ? 1 : $2); if ($1 <= 1 && $1 + len - 1 >= n) ok = 1 } END { print ok + 0 }')
+            if (( covered )); then
+              body=$(printf '%s is missing %s. Apply the suggestion to fix it.\n\n%ssuggestion\n%s\n%s\n%s' \
+                "$code$file$code" "$what" "$fence" "$fixed" "$fence" "$marker")
+              jq -n --arg body "$body" --arg path "$file" --arg sha "$HEAD_SHA" --argjson lines "$lines" '
+                {body: $body, path: $path, commit_id: $sha, side: "RIGHT", line: $lines}
+                + (if $lines > 1 then {start_line: 1, start_side: "RIGHT"} else {} end)' \
+                | gh api --method POST "repos/$GITHUB_REPOSITORY/pulls/$PR/comments" --input - > /dev/null
+              echo "::notice file=$file::Suggested the fix for $file"
+            else
+              body=$(printf "%s is missing %s. It isn't changed in this pull request, so GitHub can't offer the fix as a suggestion. Replace its content with:\n\n%sjson\n%s\n%s\n%s" \
+                "$code$file$code" "$what" "$fence" "$fixed" "$fence" "$marker")
+              jq -n --arg body "$body" '{body: $body}' \
+                | gh api --method POST "repos/$GITHUB_REPOSITORY/issues/$PR/comments" --input - > /dev/null
+              echo "::notice file=$file::Posted the fix for $file as a comment"
+            fi
           done
-      - name: Commit Upstream
-        uses: step-security/ghcommit-action@v0.2.23
-        with:
-          commit_message: "chore(renovate): enforce upstream Renovate config"
-          repo: ${{ github.repository }}
-          branch: ${{ github.head_ref }}
-          file_pattern: ${{ join(fromJSON(needs.upstream.outputs.missing).*.file, ' ') }}
-        env:
-          GITHUB_TOKEN: ${{ github.token }}

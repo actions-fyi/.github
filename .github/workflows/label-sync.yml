@@ -28,7 +28,7 @@ jobs:
       - name: Checkout Label Config
         uses: actions/checkout@v7.0.1
         with:
-          repository: matfax/.github
+          repository: actions-fyi/.github
           ref: main
           path: upstream
           sparse-checkout: .github/labels.yml
