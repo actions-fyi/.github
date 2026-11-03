@@ -22,11 +22,11 @@ jobs:
       issues: write # Create and update labels
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
+        uses: step-security/harden-runner@v2.22.3
         with:
           egress-policy: audit
       - name: Checkout Label Config
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: actions/checkout@v7.0.1
         with:
           repository: matfax/.github
           ref: main
@@ -35,6 +35,6 @@ jobs:
           sparse-checkout-cone-mode: false
           persist-credentials: false
       - name: Sync Labels
-        uses: step-security/label-sync@f396e0b83fd70ebaa9ae8b859f7f2bfdae95beaf # v2.3.3
+        uses: step-security/label-sync@v2.3.3
         with:
           config-file: upstream/.github/labels.yml

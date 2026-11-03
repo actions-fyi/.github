@@ -15,6 +15,12 @@
       "automerge": true
     },
     {
+      "description": "Actions are pinned by .github/workflows/actions.lock, so keep readable tags; reusable workflows and images are not in the lockfile and stay digest-pinned",
+      "matchManagers": ["github-actions"],
+      "matchDepTypes": ["action"],
+      "pinDigests": false
+    },
+    {
       "description": "Major updates wait for a human",
       "matchUpdateTypes": ["major"],
       "automerge": false
