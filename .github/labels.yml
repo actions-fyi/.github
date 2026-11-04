@@ -1,33 +1,57 @@
+- name: accessibility
+  color: d4c5f9
+  description: Barrier affecting people with disabilities
+- name: api
+  color: bae6fd
+  description: Issues involving the API
+- name: breaking
+  color: d93f0b
+  description: Changes that introduce migration issues
 - name: bug
-  color: d73a4a
+  color: c2410c
   description: Something isn't working
+- name: build
+  color: fde68a
+  description: Build-related issues and changes
 - name: dependencies
   color: 0366d6
-  description: Pull requests that update a dependency
+  description: Issues regarding codebase dependencies and their versions
 - name: documentation
-  color: 0075ca
+  color: "040404"
   description: Improvements or additions to documentation
 - name: duplicate
   color: cfd3d7
   description: This issue or pull request already exists
-- name: enhancement
-  color: a2eeef
-  description: New feature or request
+- name: feature
+  color: 2563eb
+  description: Atomically scoped features to the codebase
 - name: good first issue
   color: 7057ff
   description: Good for newcomers
 - name: help wanted
-  color: "008672"
+  color: c5def5
   description: Extra attention is needed
 - name: invalid
-  color: e4e669
+  color: fef2c0
   description: This doesn't seem right
+- name: maintenance
+  color: b1cca7
+  description: Issues regarding to maintenance tasks and debt
+- name: performance
+  color: 0f766e
+  description: Performance-related issues and improvements
 - name: question
   color: d876e3
   description: Further information is requested
+- name: refactor
+  color: 6d28d9
+  description: Cross-cutting changes
 - name: security
-  color: b60205
-  description: Fixes a security vulnerability
+  color: 7f1d1d
+  description: Vulnerabilities and security issues
+- name: ui
+  color: c2e0c6
+  description: Issues involving the UI
 - name: wontfix
   color: ffffff
   description: This will not be worked on
