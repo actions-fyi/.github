@@ -8,6 +8,7 @@
     ":enableVulnerabilityAlertsWithAdditionalLabel(security)"
   ],
   "labels": ["dependencies"],
+  "gitIgnoredAuthors": ["157150467+octo-sts[bot]@users.noreply.github.com"],
   "packageRules": [
     {
       "description": "Merge non-major updates automatically once required checks pass",
