@@ -3,6 +3,10 @@
 # Docs: https://gh.io/actions-lockfile
 version: 'v0.0.3'
 workflows:
+    '.github/workflows/auto-label.yml':
+        - 'actions/checkout@v7.0.1'
+        - 'step-security/claude-code-action@v1.0.238'
+        - 'step-security/harden-runner@v2.22.3'
     '.github/workflows/claude.yml':
         - 'actions/checkout@v7.0.1'
         - 'step-security/claude-code-action@v1.0.238'
