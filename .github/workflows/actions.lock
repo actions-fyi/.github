@@ -3,10 +3,6 @@
 # Docs: https://gh.io/actions-lockfile
 version: 'v0.0.3'
 workflows:
-    '.github/workflows/actionslint.yml':
-        - 'actions/checkout@v7.0.1'
-        - 'kjanat/actionlint@v1.17.0'
-        - 'step-security/harden-runner@v2.22.3'
     '.github/workflows/claude.yml':
         - 'actions/checkout@v7.0.1'
         - 'step-security/claude-code-action@v1.0.238'
@@ -19,9 +15,6 @@ workflows:
         - 'actions/checkout@v7.0.1'
         - 'step-security/harden-runner@v2.22.3'
         - 'suzuki-shunsuke/github-action-renovate-config-validator@v2.4.1'
-    '.github/workflows/semantic-pull-request.yml':
-        - 'step-security/action-semantic-pull-request@v6.1.2'
-        - 'step-security/harden-runner@v2.22.3'
     '.github/workflows/zizmor.yml':
         - 'actions/checkout@v7.0.1'
         - 'step-security/harden-runner@v2.22.3'
@@ -47,16 +40,6 @@ dependencies:
         commit: 'sha1-9b3254085494b55a0f7c4c2b3d2d52cc712ce370'
         owner_id: 9919
         repo_id: 259445878
-    'kjanat/actionlint@v1.17.0':
-        ref: 'v1.17.0'
-        commit: 'sha1-08bb2c4f0d039744455b87aef1c647fb8b66d37b'
-        owner_id: 6353477
-        repo_id: 1326162482
-    'step-security/action-semantic-pull-request@v6.1.2':
-        ref: 'v6.1.2'
-        commit: 'sha1-75d2dd5deafa3e9fccc1626ecd58d076ed1d2c79'
-        owner_id: 88700172
-        repo_id: 718815272
     'step-security/claude-code-action@v1.0.238':
         ref: 'v1.0.238'
         commit: 'sha1-f921413b67d52bb040358b3c180b45f823cad94f'
