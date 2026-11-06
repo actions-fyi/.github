@@ -3,6 +3,7 @@
 # Docs: https://gh.io/actions-lockfile
 version: 'v0.0.3'
 workflows:
+    '.github/workflows/actions-lock-explain.yml': []
     '.github/workflows/auto-label.yml':
         - 'actions/checkout@v7.0.1'
         - 'step-security/claude-code-action@v1.0.238'
@@ -15,6 +16,8 @@ workflows:
         - 'actions/checkout@v7.0.1'
         - 'step-security/harden-runner@v2.22.4'
         - 'step-security/label-sync@v2.3.3'
+    '.github/workflows/pr-event.yml': []
+    '.github/workflows/pr-metadata.yml': []
     '.github/workflows/renovate.yml':
         - 'actions/checkout@v7.0.1'
         - 'step-security/harden-runner@v2.22.4'
