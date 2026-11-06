@@ -1,7 +1,7 @@
 name: Explain Actions Lockfile
 # "Check Actions Lockfile" is the org ruleset workflow; this listener explains its failures.
 on:
-  workflow_run: # zizmor: ignore[dangerous-triggers] the called workflow never checks out or runs PR code; writes happen in jobs without secrets or agents
+  workflow_run:
     workflows: ["Check Actions Lockfile"]
     types: [completed]
 
