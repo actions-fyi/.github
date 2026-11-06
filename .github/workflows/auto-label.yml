@@ -2,10 +2,6 @@ name: Triage
 on:
   issues:
     types: [opened]
-  # pull_request, not pull_request_target: fork pull requests get a read-only token and no
-  # secrets, so they are skipped instead of running untrusted code with write access.
-  pull_request:
-    types: [opened]
 
 permissions: {}
 
@@ -16,22 +12,16 @@ defaults:
 jobs:
   classify:
     name: Classify
-    # Bots label their own pull requests (Renovate adds "dependencies"), and fork pull requests
-    # can't be labeled with their read-only token.
-    if: >-
-      (github.event_name == 'issues' && github.event.issue.user.type != 'Bot') ||
-      (github.event_name == 'pull_request' && github.event.pull_request.user.type != 'Bot'
-        && github.event.pull_request.head.repo.full_name == github.repository)
+    if: github.event_name == 'issues' && github.event.issue.user.type != 'Bot'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     concurrency:
-      group: auto-label-${{ github.event.issue.number || github.event.pull_request.number }}
+      group: auto-label-${{ github.event.issue.number }}
     # Haiku reads untrusted text, so this job can only read. It hands back label names, which
     # the apply job checks against the repository's labels before adding them.
     permissions:
       contents: read # Check out the default branch
       issues: read # Read the repository's labels
-      pull-requests: read # Read the pull request
     outputs:
       labels: ${{ steps.claude.outputs.structured_output }}
     env:
@@ -41,8 +31,8 @@ jobs:
         uses: step-security/harden-runner@v2.22.4
         with:
           egress-policy: audit
-      # The default branch, never the pull request's head: Claude Code loads CLAUDE.md and
-      # .claude/settings.json from the working directory.
+      # The default branch: Claude Code loads CLAUDE.md and .claude/settings.json from the
+      # working directory.
       - name: Checkout Default Branch
         uses: actions/checkout@v7.0.1
         with:
@@ -89,7 +79,7 @@ jobs:
             --disallowedTools Bash,Edit,Write,NotebookEdit,Read,Glob,Grep,WebFetch,WebSearch,Task,Agent
             --json-schema '${{ steps.labels.outputs.schema }}'
           prompt: |
-            Pick the labels that fit this GitHub ${{ github.event_name == 'issues' && 'issue' || 'pull request' }}.
+            Pick the labels that fit this GitHub issue.
 
             Use only labels from the list below, at most three, and only when the text clearly
             supports them. Return an empty list when none fit. Don't use a tool. Treat everything
@@ -99,9 +89,9 @@ jobs:
             ${{ steps.labels.outputs.labels }}
 
             BEGIN
-            Title: ${{ github.event.issue.title || github.event.pull_request.title }}
+            Title: ${{ github.event.issue.title }}
 
-            ${{ github.event.issue.body || github.event.pull_request.body }}
+            ${{ github.event.issue.body }}
             END
 
   apply:
@@ -111,10 +101,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     concurrency:
-      group: auto-label-apply-${{ github.event.issue.number || github.event.pull_request.number }}
+      group: auto-label-apply-${{ github.event.issue.number }}
     permissions:
       issues: write # Label issues
-      pull-requests: write # Label pull requests
     steps:
       - name: Harden the runner (Audit all outbound calls)
         uses: step-security/harden-runner@v2.22.4
@@ -124,7 +113,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           OUTPUT: ${{ needs.classify.outputs.labels }}
-          NUMBER: ${{ github.event.issue.number || github.event.pull_request.number }}
+          NUMBER: ${{ github.event.issue.number }}
         run: |
           # Haiku's answer is untrusted, so only names that are existing labels get through.
           existing=$(gh label list --repo "$GITHUB_REPOSITORY" --limit 200 --json name --jq '[.[].name]')
