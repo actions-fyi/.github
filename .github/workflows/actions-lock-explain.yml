@@ -1,0 +1,19 @@
+name: Explain Actions Lockfile
+# "Check Actions Lockfile" is the org ruleset workflow; this listener explains its failures.
+on:
+  workflow_run: # zizmor: ignore[dangerous-triggers] the called workflow never checks out or runs PR code; writes happen in jobs without secrets or agents
+    workflows: ["Check Actions Lockfile"]
+    types: [completed]
+
+permissions: {}
+
+jobs:
+  explain:
+    name: Explain
+    permissions:
+      actions: read # Read the run's jobs and download their logs
+      contents: read # Check out the default branch for the screen job
+      pull-requests: write # Find the pull request; create or update the comment
+    uses: actions-fyi/shared-workflows/.github/workflows/_explain.yml@v0.3.0
+    secrets:
+      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}

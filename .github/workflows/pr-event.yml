@@ -1,0 +1,15 @@
+name: PR Event
+# Exists so workflow_run listeners can run with secrets for fork pull requests too.
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions: {}
+
+jobs:
+  record:
+    name: Record
+    runs-on: ubuntu-latest
+    steps:
+      - name: Record Event
+        run: echo "::notice::Pull request event recorded for workflow_run listeners"

@@ -1,0 +1,19 @@
+name: PR Metadata
+on:
+  workflow_run: # zizmor: ignore[dangerous-triggers] the called workflow never checks out or runs PR code; writes happen in jobs without secrets or agents
+    workflows: ["PR Event"]
+    types: [completed]
+
+permissions: {}
+
+jobs:
+  metadata:
+    name: Metadata
+    permissions:
+      actions: write # Re-run the failed Check Metadata jobs
+      contents: read # Check out the default branch for the screen jobs
+      issues: write # Read the repository's labels and label the pull request
+      pull-requests: write # Read the pull request; apply the title, labels and description
+    uses: actions-fyi/shared-workflows/.github/workflows/_pr-metadata.yml@v0.3.0
+    secrets:
+      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
