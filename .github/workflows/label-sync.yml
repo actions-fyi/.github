@@ -14,27 +14,8 @@ permissions: {}
 jobs:
   labels:
     name: Labels
-    runs-on: ubuntu-latest
-    concurrency:
-      group: label-sync-${{ github.ref }}
+    # What the labels job of _label-sync.yml declares; a called job can't get more.
     permissions:
       contents: read # Check out the label config
       issues: write # Create and update labels
-    steps:
-      - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@v2.22.4
-        with:
-          egress-policy: audit
-      - name: Checkout Label Config
-        uses: actions/checkout@v7.0.1
-        with:
-          repository: actions-fyi/.github
-          ref: main
-          path: upstream
-          sparse-checkout: .github/labels.yml
-          sparse-checkout-cone-mode: false
-          persist-credentials: false
-      - name: Sync Labels
-        uses: step-security/label-sync@v2.3.3
-        with:
-          config-file: upstream/.github/labels.yml
+    uses: actions-fyi/shared-workflows/.github/workflows/_label-sync.yml@3a81fd437346e4d6e5eb4883823e56d083b3b8a6 # v0.4.0
