@@ -14,6 +14,6 @@ jobs:
       actions: read # Read the run's jobs and download their logs
       contents: read # Check out the default branch for the screen job
       pull-requests: write # Find the pull request; create or update the comment
-    uses: actions-fyi/shared-workflows/.github/workflows/_explain.yml@v0.3.0
+    uses: actions-fyi/shared-workflows/.github/workflows/_explain.yml@aadb4381f67017fd0f993c9fda50b29e134ef01d # v0.3.0
     secrets:
       CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
