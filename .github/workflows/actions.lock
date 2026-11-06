@@ -4,13 +4,21 @@
 version: 'v0.0.3'
 workflows:
     '.github/workflows/actions-lock-explain.yml': []
-    '.github/workflows/auto-label.yml': []
+    '.github/workflows/actions-lock-push.yml': []
+    '.github/workflows/auto-label.yml':
+        - 'actions/checkout@v7.0.1'
+        - 'step-security/claude-code-action@v1.0.238'
+        - 'step-security/harden-runner@v2.22.4'
     '.github/workflows/claude.yml':
         - 'actions/checkout@v7.0.1'
         - 'step-security/claude-code-action@v1.0.238'
         - 'step-security/harden-runner@v2.22.4'
-    '.github/workflows/label-sync.yml': []
-    '.github/workflows/pr-event.yml': []
+    '.github/workflows/label-sync.yml':
+        - 'actions/checkout@v7.0.1'
+        - 'step-security/harden-runner@v2.22.4'
+        - 'step-security/label-sync@v2.3.3'
+    '.github/workflows/pr-event.yml':
+        - 'step-security/harden-runner@v2.22.4'
     '.github/workflows/pr-metadata.yml': []
     '.github/workflows/renovate.yml': []
     '.github/workflows/zizmor.yml': []
@@ -32,6 +40,11 @@ dependencies:
         commit: 'sha1-1d88384fd173af6ecb012dfd0264a306b711241a'
         owner_id: 88700172
         repo_id: 422287306
+    'step-security/label-sync@v2.3.3':
+        ref: 'v2.3.3'
+        commit: 'sha1-f396e0b83fd70ebaa9ae8b859f7f2bfdae95beaf'
+        owner_id: 88700172
+        repo_id: 1344620599
     'step-security/setup-bun@f6f5dadeac34f70c7828f731569e8d6e8330b8fb':
         ref: 'v2.1.3'
         commit: 'sha1-f6f5dadeac34f70c7828f731569e8d6e8330b8fb'
