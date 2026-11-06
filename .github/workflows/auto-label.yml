@@ -8,6 +8,7 @@ permissions: {}
 jobs:
   triage:
     name: Triage
+    cache-mode: none
     # The union of what the jobs of _triage.yml declare; a called job can't get more.
     permissions:
       contents: read # Check out the default branch
