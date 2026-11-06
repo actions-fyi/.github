@@ -1,7 +1,7 @@
 issuer: https://token.actions.githubusercontent.com
 subject_pattern: repo:actions-fyi/[^:]+:pull_request
 claim_pattern:
-  job_workflow_ref: actions-fyi/ruleset-workflows/\.github/workflows/actions-lock\.ya?ml@refs/heads/main
+  job_workflow_ref: actions-fyi/shared-workflows/\.github/workflows/_actions-lock\.ya?ml@refs/tags/v.*
 permissions:
   contents: write
   workflows: write
