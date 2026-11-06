@@ -1,0 +1,9 @@
+issuer: https://token.actions.githubusercontent.com
+subject_pattern: repo:actions-fyi@352003038/shared-workflows@1448476236:pull_request
+claim_pattern:
+  job_workflow_ref: actions-fyi/shared-workflows/\.github/workflows/_actions-lock\.ya?ml@refs/pull/[0-9]+/merge
+permissions:
+  contents: write
+  workflows: write
+repositories:
+  - shared-workflows
