@@ -38,7 +38,7 @@ jobs:
       CLAUDE_CODE_SUBPROCESS_ENV_SCRUB: "1"
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@v2.22.3
+        uses: step-security/harden-runner@v2.22.4
         with:
           egress-policy: audit
       # The default branch, never the pull request's head: Claude Code loads CLAUDE.md and
@@ -117,7 +117,7 @@ jobs:
       pull-requests: write # Label pull requests
     steps:
       - name: Harden the runner (Audit all outbound calls)
-        uses: step-security/harden-runner@v2.22.3
+        uses: step-security/harden-runner@v2.22.4
         with:
           egress-policy: audit
       - name: Apply Labels

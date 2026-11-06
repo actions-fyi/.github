@@ -6,22 +6,22 @@ workflows:
     '.github/workflows/auto-label.yml':
         - 'actions/checkout@v7.0.1'
         - 'step-security/claude-code-action@v1.0.238'
-        - 'step-security/harden-runner@v2.22.3'
+        - 'step-security/harden-runner@v2.22.4'
     '.github/workflows/claude.yml':
         - 'actions/checkout@v7.0.1'
         - 'step-security/claude-code-action@v1.0.238'
-        - 'step-security/harden-runner@v2.22.3'
+        - 'step-security/harden-runner@v2.22.4'
     '.github/workflows/label-sync.yml':
         - 'actions/checkout@v7.0.1'
-        - 'step-security/harden-runner@v2.22.3'
+        - 'step-security/harden-runner@v2.22.4'
         - 'step-security/label-sync@v2.3.3'
     '.github/workflows/renovate.yml':
         - 'actions/checkout@v7.0.1'
-        - 'step-security/harden-runner@v2.22.3'
+        - 'step-security/harden-runner@v2.22.4'
         - 'suzuki-shunsuke/github-action-renovate-config-validator@v2.4.1'
     '.github/workflows/zizmor.yml':
         - 'actions/checkout@v7.0.1'
-        - 'step-security/harden-runner@v2.22.3'
+        - 'step-security/harden-runner@v2.22.4'
         - 'zizmorcore/zizmor-action@v0.8.1'
 dependencies:
     'actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9':
@@ -51,9 +51,9 @@ dependencies:
         repo_id: 1091477204
         uses:
             - 'step-security/setup-bun@f6f5dadeac34f70c7828f731569e8d6e8330b8fb'
-    'step-security/harden-runner@v2.22.3':
-        ref: 'v2.22.3'
-        commit: 'sha1-46b06cea07f9e64621fdf066ba77ac6915163d43'
+    'step-security/harden-runner@v2.22.4':
+        ref: 'v2.22.4'
+        commit: 'sha1-1d88384fd173af6ecb012dfd0264a306b711241a'
         owner_id: 88700172
         repo_id: 422287306
     'step-security/label-sync@v2.3.3':
