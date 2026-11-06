@@ -4,6 +4,7 @@
 version: 'v0.0.3'
 workflows:
     '.github/workflows/actions-lock-explain.yml': []
+    '.github/workflows/actions-lock-push.yml': []
     '.github/workflows/auto-label.yml':
         - 'actions/checkout@v7.0.1'
         - 'step-security/claude-code-action@v1.0.238'
