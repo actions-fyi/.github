@@ -10,6 +10,9 @@ jobs:
   record:
     name: Record
     runs-on: ubuntu-latest
+    concurrency:
+      group: pr-event-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
     steps:
       - name: Record Event
         run: echo "::notice::Pull request event recorded for workflow_run listeners"
