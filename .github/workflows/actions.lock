@@ -16,7 +16,8 @@ workflows:
         - 'actions/checkout@v7.0.1'
         - 'step-security/harden-runner@v2.22.4'
         - 'step-security/label-sync@v2.3.3'
-    '.github/workflows/pr-event.yml': []
+    '.github/workflows/pr-event.yml':
+        - 'step-security/harden-runner@v2.22.4'
     '.github/workflows/pr-metadata.yml': []
     '.github/workflows/renovate.yml': []
     '.github/workflows/zizmor.yml': []
