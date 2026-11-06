@@ -10,6 +10,7 @@ permissions: {}
 jobs:
   explain:
     name: Explain
+    cache-mode: none
     permissions:
       actions: read # Read the run's jobs and download their logs
       contents: read # Check out the default branch for the screen job

@@ -9,6 +9,7 @@ permissions: {}
 jobs:
   metadata:
     name: Metadata
+    cache-mode: none
     permissions:
       actions: write # Re-run the failed Check Metadata jobs
       contents: read # Check out the default branch for the screen jobs
