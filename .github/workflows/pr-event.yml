@@ -14,5 +14,10 @@ jobs:
       group: pr-event-${{ github.event.pull_request.number }}
       cancel-in-progress: true
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@v2
+        with:
+          egress-policy: audit
+
       - name: Record Event
         run: echo "::notice::Pull request event recorded for workflow_run listeners"
