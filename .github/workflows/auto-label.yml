@@ -13,6 +13,6 @@ jobs:
     permissions:
       contents: read # Check out the default branch
       issues: write # Read the repository's labels, and label issues
-    uses: actions-fyi/shared-workflows/.github/workflows/_triage.yml@3a81fd437346e4d6e5eb4883823e56d083b3b8a6 # v0.4.0
+    uses: actions-fyi/shared-workflows/.github/workflows/_triage.yml@b8c64a24eaadc1dd7a031f4b9d5b415e9b5840a1 # v0.5.0
     secrets:
       CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
