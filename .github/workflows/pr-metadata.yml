@@ -15,6 +15,6 @@ jobs:
       contents: read # Check out the default branch for the screen jobs
       issues: write # Read the repository's labels and label the pull request
       pull-requests: write # Read the pull request; apply the title, labels and description
-    uses: actions-fyi/shared-workflows/.github/workflows/_pr-metadata.yml@b8c64a24eaadc1dd7a031f4b9d5b415e9b5840a1 # v0.5.0
+    uses: actions-fyi/shared-workflows/.github/workflows/_pr-metadata.yml@9163040a98c14f96670935acecae1cf4d2754daa # v0.6.0
     secrets:
       CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
