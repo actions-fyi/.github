@@ -22,6 +22,19 @@
       "pinDigests": false
     },
     {
+      "description": "OpenBao and Octo STS trust these reusable workflows only at a tag ref, which a commit SHA doesn't match, so their callers keep the tag",
+      "matchManagers": ["github-actions"],
+      "matchPackageNames": ["actions-fyi/prompt-guard-action"],
+      "pinDigests": false
+    },
+    {
+      "description": "The ruleset's lockfile check calls _actions-lock.yml, whose Octo STS identity binds the tag ref",
+      "matchManagers": ["github-actions"],
+      "matchPackageNames": ["actions-fyi/shared-workflows"],
+      "matchFileNames": [".github/workflows/actions-lock.yml"],
+      "pinDigests": false
+    },
+    {
       "description": "Major updates wait for a human",
       "matchUpdateTypes": ["major"],
       "automerge": false
