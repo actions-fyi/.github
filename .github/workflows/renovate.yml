@@ -1,9 +1,9 @@
 name: Validate
+# Validates pushes to main. Pull requests and merge groups are covered by the org ruleset workflow
+# Validate Renovate Config of actions-fyi/ruleset-workflows.
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: ["**"]
 
 permissions: {}
 

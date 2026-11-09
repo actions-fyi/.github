@@ -1,10 +1,9 @@
 name: Audit
-
+# Audits pushes to main. Pull requests and merge groups are covered by the org ruleset workflow
+# Audit GitHub Actions of actions-fyi/ruleset-workflows.
 on:
   push:
     branches: ["main"]
-  pull_request:
-    branches: ["**"]
 
 permissions: {}
 

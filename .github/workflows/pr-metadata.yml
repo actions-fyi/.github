@@ -1,7 +1,9 @@
 name: PR Metadata
+# Check Metadata is the org ruleset workflow that checks the title. Its runs on pull requests start
+# this listener, which runs with the secrets and a write token, for fork pull requests too.
 on:
   workflow_run:
-    workflows: ["PR Event"]
+    workflows: ["Check Metadata"]
     types: [completed]
 
 permissions: {}
