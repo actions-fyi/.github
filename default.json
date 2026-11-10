@@ -17,22 +17,16 @@
       "automerge": true
     },
     {
-      "description": "Actions are pinned by .github/workflows/actions.lock, so keep readable tags; reusable workflows and images are not in the lockfile and stay digest-pinned",
+      "description": "Actions are pinned by .github/workflows/actions.lock, so keep readable tags; reusable workflows and images are not in the lockfile and stay digest-pinned, except actions-fyi's",
       "matchManagers": ["github-actions"],
       "matchDepTypes": ["action"],
       "pinDigests": false
     },
     {
-      "description": "OpenBao and Octo STS trust these reusable workflows only at a tag ref, which a commit SHA doesn't match, so their callers keep the tag",
+      "description": "actions-fyi releases its reusable workflows under immutable tags, and the OpenBao and Octo STS trust policies bind some of them to a tag ref, which a commit SHA doesn't match",
       "matchManagers": ["github-actions"],
-      "matchPackageNames": ["actions-fyi/prompt-guard-action"],
-      "pinDigests": false
-    },
-    {
-      "description": "The ruleset's lockfile check calls _actions-lock.yml, whose Octo STS identity binds the tag ref",
-      "matchManagers": ["github-actions"],
-      "matchPackageNames": ["actions-fyi/shared-workflows"],
-      "matchFileNames": [".github/workflows/actions-lock.yml"],
+      "matchDepTypes": ["workflow"],
+      "matchPackageNames": ["actions-fyi/*"],
       "pinDigests": false
     },
     {
