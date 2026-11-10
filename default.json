@@ -5,7 +5,8 @@
     "config:best-practices",
     "helpers:pinGitHubActionDigestsToSemver",
     ":gitSignOff",
-    ":enableVulnerabilityAlertsWithAdditionalLabel(security)"
+    ":enableVulnerabilityAlertsWithAdditionalLabel(security)",
+    "customManagers:githubActionsVersions"
   ],
   "labels": ["dependencies"],
   "gitIgnoredAuthors": ["157150467+octo-sts[bot]@users.noreply.github.com"],
@@ -16,23 +17,28 @@
       "automerge": true
     },
     {
-      "description": "Actions are pinned by .github/workflows/actions.lock, so keep readable tags; reusable workflows and images are not in the lockfile and stay digest-pinned",
+      "description": "Actions are pinned by .github/workflows/actions.lock, so keep readable tags; reusable workflows and images are not in the lockfile and stay digest-pinned, except actions-fyi's",
       "matchManagers": ["github-actions"],
       "matchDepTypes": ["action"],
       "pinDigests": false
     },
     {
-      "description": "OpenBao and Octo STS trust these reusable workflows only at a tag ref, which a commit SHA doesn't match, so their callers keep the tag",
+      "description": "actions-fyi releases its reusable workflows under immutable tags, and the OpenBao and Octo STS trust policies bind some of them to a tag ref, which a commit SHA doesn't match",
       "matchManagers": ["github-actions"],
-      "matchPackageNames": ["actions-fyi/prompt-guard-action"],
+      "matchDepTypes": ["workflow"],
+      "matchPackageNames": ["actions-fyi/*"],
       "pinDigests": false
     },
     {
-      "description": "The ruleset's lockfile check calls _actions-lock.yml, whose Octo STS identity binds the tag ref",
-      "matchManagers": ["github-actions"],
-      "matchPackageNames": ["actions-fyi/shared-workflows"],
-      "matchFileNames": [".github/workflows/actions-lock.yml"],
-      "pinDigests": false
+      "description": "zizmor-action only installs the zizmor versions it ships a lock for, so update both together",
+      "matchPackageNames": ["zizmor", "zizmorcore/zizmor-action"],
+      "groupName": "zizmor"
+    },
+    {
+      "description": "zizmor 1.32.0 can't parse an actions.lock without dependencies: https://github.com/zizmorcore/zizmor/issues/2542",
+      "matchDatasources": ["pypi"],
+      "matchPackageNames": ["zizmor"],
+      "allowedVersions": "!/^1\\.32\\.0$/"
     },
     {
       "description": "Major updates wait for a human",
