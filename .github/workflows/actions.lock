@@ -8,14 +8,6 @@ workflows:
     '.github/workflows/auto-label.yml': []
     '.github/workflows/claude.yml': []
     '.github/workflows/label-sync.yml': []
-    '.github/workflows/pr-event.yml':
-        - 'step-security/harden-runner@v2.22.4'
     '.github/workflows/pr-metadata.yml': []
     '.github/workflows/renovate.yml': []
     '.github/workflows/zizmor.yml': []
-dependencies:
-    'step-security/harden-runner@v2.22.4':
-        ref: 'v2.22.4'
-        commit: 'sha1-1d88384fd173af6ecb012dfd0264a306b711241a'
-        owner_id: 88700172
-        repo_id: 422287306
