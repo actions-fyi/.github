@@ -15,4 +15,4 @@ jobs:
       security-events: write # Upload the SARIF results to code scanning
       contents: read # Check out the repository
       actions: read # Let upload-sarif read the workflow run
-    uses: actions-fyi/shared-workflows/.github/workflows/_zizmor.yml@3846a95a41212282762d6d8769d7f6efe3c7078c # v0.9.0
+    uses: actions-fyi/shared-workflows/.github/workflows/_zizmor.yml@d7c1481a1bd223538cc558d1afbc2e87b8c104b2 # v0.12.2
