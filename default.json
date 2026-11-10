@@ -5,7 +5,8 @@
     "config:best-practices",
     "helpers:pinGitHubActionDigestsToSemver",
     ":gitSignOff",
-    ":enableVulnerabilityAlertsWithAdditionalLabel(security)"
+    ":enableVulnerabilityAlertsWithAdditionalLabel(security)",
+    "customManagers:githubActionsVersions"
   ],
   "labels": ["dependencies"],
   "gitIgnoredAuthors": ["157150467+octo-sts[bot]@users.noreply.github.com"],
@@ -33,6 +34,17 @@
       "matchPackageNames": ["actions-fyi/shared-workflows"],
       "matchFileNames": [".github/workflows/actions-lock.yml"],
       "pinDigests": false
+    },
+    {
+      "description": "zizmor-action only installs the zizmor versions it ships a lock for, so update both together",
+      "matchPackageNames": ["zizmor", "zizmorcore/zizmor-action"],
+      "groupName": "zizmor"
+    },
+    {
+      "description": "zizmor 1.32.0 can't parse an actions.lock without dependencies: https://github.com/zizmorcore/zizmor/issues/2542",
+      "matchDatasources": ["pypi"],
+      "matchPackageNames": ["zizmor"],
+      "allowedVersions": "!/^1\\.32\\.0$/"
     },
     {
       "description": "Major updates wait for a human",
