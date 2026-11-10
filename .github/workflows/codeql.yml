@@ -1,10 +1,16 @@
 name: CodeQL
-# Analyzes pushes to main, and the default branch weekly, so new queries also reach code that
-# doesn't change. Pull requests and merge groups are covered by the org ruleset workflow CodeQL of
-# actions-fyi/ruleset-workflows. The analysis lives in _codeql.yml of actions-fyi/shared-workflows;
-# see there. CodeQL's default setup must be off in every repository this runs in, or code scanning
-# rejects the upload.
+# Analyzes pull requests, merge groups, pushes to main, and the default branch weekly, so new
+# queries also reach code that doesn't change. The analysis lives in _codeql.yml of
+# actions-fyi/shared-workflows; see there. CodeQL's default setup must be off in every repository
+# this runs in, or code scanning rejects the upload.
+#
+# Unlike the other pull request checks, this isn't an org ruleset workflow: GitHub doesn't allow
+# github/codeql-action in a required workflow. The org ruleset enforces it with "Require code
+# scanning results" instead, and a merge queue waits for those results, so this also runs on
+# merge_group.
 on:
+  pull_request:
+  merge_group:
   push:
     branches: ["main"]
   schedule:
