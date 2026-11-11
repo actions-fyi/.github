@@ -23,7 +23,7 @@
       "pinDigests": false
     },
     {
-      "description": "actions-fyi releases its reusable workflows under immutable tags, and the OpenBao and Octo STS trust policies bind some of them to a tag ref, which a commit SHA doesn't match",
+      "description": "actions-fyi reusable workflows are called by tag: the org blocks updating and deleting tags, and the OpenBao and Octo STS trust policies bind the tag ref, which a commit SHA doesn't match",
       "matchManagers": ["github-actions"],
       "matchDepTypes": ["workflow"],
       "matchPackageNames": ["actions-fyi/*"],
