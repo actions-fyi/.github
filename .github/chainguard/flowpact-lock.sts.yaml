@@ -1,0 +1,6 @@
+issuer: https://token.actions.githubusercontent.com
+subject_pattern: repo:actions-fyi@352003038/[^:@]+@[0-9]+:pull_request
+claim_pattern:
+  job_workflow_ref: actions-fyi/shared-workflows/\.github/workflows/_flowpact\.ya?ml@refs/tags/v.*
+permissions:
+  contents: write
