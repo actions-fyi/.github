@@ -1,0 +1,5 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Run go mod tidy after Go module updates, so go.sum also gets the module hashes go get ./... skips, such as for tool directives. Opt out with \"ignorePresets\": [\"github>actions-fyi/.github:gomod-tidy\"]; postUpdateOptions is mergeable, so an empty list doesn't remove it",
+  "postUpdateOptions": ["gomodTidy"]
+}
