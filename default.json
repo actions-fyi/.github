@@ -7,7 +7,8 @@
     ":gitSignOff",
     ":semanticCommits",
     ":enableVulnerabilityAlertsWithAdditionalLabel(security)",
-    "customManagers:githubActionsVersions"
+    "customManagers:githubActionsVersions",
+    "github>actions-fyi/.github:gomod-tidy"
   ],
   "labels": ["dependencies"],
   "gitIgnoredAuthors": ["157150467+octo-sts[bot]@users.noreply.github.com"],
