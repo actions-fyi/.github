@@ -5,6 +5,7 @@
     "config:best-practices",
     "helpers:pinGitHubActionDigestsToSemver",
     ":gitSignOff",
+    ":semanticCommits",
     ":enableVulnerabilityAlertsWithAdditionalLabel(security)",
     "customManagers:githubActionsVersions"
   ],
