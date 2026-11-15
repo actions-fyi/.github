@@ -164,6 +164,21 @@ remotes:
         issues: read
       apply:
         issues: write
+  actions-fyi/shared-workflows/.github/workflows/_typescript.yml@v0.19.0:
+    sha: bea33ec2671731b7e4d833f03020e3b39e5340b2
+    kind: workflow
+    inputs:
+      scripts:
+        type: string
+        default: typecheck lint format:check build test
+      working-directory:
+        type: string
+        default: .
+    jobPermissions:
+      project:
+        contents: read
+      check:
+        contents: read
   actions-fyi/shared-workflows/.github/workflows/_zizmor.yml@v0.18.1:
     sha: 62f4556f15dbf623e76ceeacef49b957fbc76384
     kind: workflow
@@ -176,3 +191,104 @@ remotes:
         security-events: write
         contents: read
         actions: read
+  actions/checkout@v7.0.1:
+    sha: 3d3c42e5aac5ba805825da76410c181273ba90b1
+    kind: action
+    using: node24
+    inputs:
+      repository:
+        default: ${{ github.repository }}
+      ref: {}
+      token:
+        default: ${{ github.token }}
+      ssh-key: {}
+      ssh-known-hosts: {}
+      ssh-strict:
+        default: true
+      ssh-user:
+        default: git
+      persist-credentials:
+        default: true
+      path: {}
+      clean:
+        default: true
+      filter: {}
+      sparse-checkout: {}
+      sparse-checkout-cone-mode:
+        default: true
+      fetch-depth:
+        default: 1
+      fetch-tags:
+        default: false
+      show-progress:
+        default: true
+      lfs:
+        default: false
+      submodules:
+        default: false
+      set-safe-directory:
+        default: true
+      github-server-url: {}
+      allow-unsafe-pr-checkout:
+        default: false
+    outputs:
+      - ref
+      - commit
+  actions/setup-node@v7.1.0:
+    sha: 949feb2413d6458794dcd2491c4babbbce0c15c1
+    kind: action
+    using: node24
+    inputs:
+      node-version: {}
+      node-version-file: {}
+      architecture: {}
+      check-latest:
+        default: false
+      registry-url: {}
+      scope: {}
+      token:
+        default: ${{ github.server_url == 'https://github.com' && github.token || '' }}
+      cache: {}
+      package-manager-cache:
+        default: true
+      cache-dependency-path: {}
+      mirror: {}
+      mirror-token: {}
+    outputs:
+      - cache-hit
+      - cache-primary-key
+      - cache-matched-key
+      - node-version
+  step-security/harden-runner@v2.22.4:
+    sha: 1d88384fd173af6ecb012dfd0264a306b711241a
+    kind: action
+    using: node24
+    inputs:
+      allowed-endpoints:
+        default: ''
+      denied-endpoints:
+        default: ''
+      egress-policy:
+        default: block
+      token:
+        default: ${{ github.token }}
+      disable-telemetry:
+        default: 'false'
+      disable-sudo:
+        default: 'false'
+      disable-sudo-and-containers:
+        default: 'false'
+      disable-file-monitoring:
+        default: 'false'
+      policy:
+        default: ''
+      api-key:
+        default: ''
+      use-policy-store:
+        default: 'false'
+      deploy-on-self-hosted-vm:
+        default: 'false'
+      customer:
+        default: ''
+      server-name:
+        default: ''
