@@ -12,5 +12,4 @@ workflows:
     '.github/workflows/label-sync.yml': []
     '.github/workflows/pr-metadata.yml': []
     '.github/workflows/renovate.yml': []
-    '.github/workflows/typescript.yml': []
     '.github/workflows/zizmor.yml': []
