@@ -74,17 +74,6 @@ remotes:
       resolve-report:
         issues: write
         pull-requests: write
-  actions-fyi/shared-workflows/.github/workflows/_file-sync.yml@v1.2.0:
-    sha: 9c28dc1011cea6d3d171b1d981012e8b609ba9f4
-    kind: workflow
-    inputs:
-      dry-run:
-        type: boolean
-        default: false
-    jobPermissions:
-      workflows:
-        contents: read
-        id-token: write
   actions-fyi/shared-workflows/.github/workflows/_flowpact.yml@v1.2.0:
     sha: 9c28dc1011cea6d3d171b1d981012e8b609ba9f4
     kind: workflow
@@ -187,3 +176,6 @@ remotes:
         security-events: write
         contents: read
         actions: read
+unreadable:
+  actions-fyi/sync-workflows/.github/workflows/_workflow-sync-dispatch.yml@v1.0.0: actions-fyi/sync-workflows@v1.0.0 not found, or not readable with this token
+  actions-fyi/sync-workflows/.github/workflows/_workflow-sync.yml@v1.0.0: actions-fyi/sync-workflows@v1.0.0 not found, or not readable with this token
