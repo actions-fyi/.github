@@ -10,7 +10,7 @@
     "customManagers:githubActionsVersions",
     "github>actions-fyi/.github:gomod-tidy"
   ],
-  "labels": ["dependencies"],
+  "labels": ["dependencies", "maintenance"],
   "gitIgnoredAuthors": ["157150467+octo-sts[bot]@users.noreply.github.com"],
   "packageRules": [
     {
@@ -46,6 +46,11 @@
       "description": "Major updates wait for a human",
       "matchUpdateTypes": ["major"],
       "automerge": false
+    },
+    {
+      "description": "Updates in workflows also get the workflows label",
+      "matchFileNames": [".github/workflows/**", "workflow-templates/**"],
+      "addLabels": ["workflows"]
     }
   ]
 }
