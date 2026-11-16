@@ -74,6 +74,17 @@ remotes:
       resolve-report:
         issues: write
         pull-requests: write
+  actions-fyi/shared-workflows/.github/workflows/_file-sync.yml@v1.1.0:
+    sha: bbfe525891fd9f362689ba91cf02889713a86fd5
+    kind: workflow
+    inputs:
+      dry-run:
+        type: boolean
+        default: false
+    jobPermissions:
+      workflows:
+        contents: read
+        id-token: write
   actions-fyi/shared-workflows/.github/workflows/_flowpact.yml@v1.0.0:
     sha: aa37d16cd45c46e4243576509261e12259b33b78
     kind: workflow
