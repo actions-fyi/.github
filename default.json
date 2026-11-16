@@ -48,8 +48,8 @@
       "automerge": false
     },
     {
-      "description": "Updates in workflows and actions also get the workflows label",
-      "matchFileNames": [".github/workflows/**", "workflow-templates/**", "**/action.yml", "**/action.yaml"],
+      "description": "Updates in workflows also get the workflows label",
+      "matchFileNames": [".github/workflows/**", "workflow-templates/**"],
       "addLabels": ["workflows"]
     }
   ]
