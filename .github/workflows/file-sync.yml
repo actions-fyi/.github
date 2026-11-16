@@ -23,6 +23,6 @@ jobs:
     permissions:
       contents: read # List this repository's workflows
       id-token: write # Exchange the job's OIDC token with Octo STS
-    uses: actions-fyi/shared-workflows/.github/workflows/_file-sync.yml@v1.1.0
+    uses: actions-fyi/shared-workflows/.github/workflows/_file-sync.yml@v1.2.0
     with:
       dry-run: ${{ inputs.dry-run || false }} # Empty on schedule
