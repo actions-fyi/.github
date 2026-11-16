@@ -55,3 +55,6 @@
 - name: wontfix
   color: ffffff
   description: This will not be worked on
+- name: workflows
+  color: 2DA37B
+  description: Anything affecting GitHub Actions
