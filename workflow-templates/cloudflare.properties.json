@@ -1,6 +1,6 @@
 {
-  "name": "Cloudflare Worker",
-  "description": "Dry-run the deployment of the repository's Cloudflare Worker with its locked Wrangler: validates the config and the bundle without deploying and without Cloudflare credentials.",
+  "name": "Wrangler Dry Run",
+  "description": "Dry-run the repository's Wrangler deployment with its locked Wrangler: validates the Wrangler config and the bundle without deploying and without Cloudflare credentials.",
   "iconName": "octicon cloud",
   "categories": ["Continuous integration", "JavaScript", "TypeScript"],
   "filePatterns": ["^wrangler\\.(toml|json|jsonc)$"]
