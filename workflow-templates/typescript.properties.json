@@ -1,0 +1,7 @@
+{
+  "name": "TypeScript Tests",
+  "description": "Run the package's typecheck, lint, format, build and test scripts on pushes to the default branch.",
+  "iconName": "octicon package",
+  "categories": ["Continuous integration", "JavaScript", "TypeScript"],
+  "filePatterns": ["^package\\.json$"]
+}
