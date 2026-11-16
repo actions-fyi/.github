@@ -1,8 +1,12 @@
-name: Check Cloudflare Worker
-# Checks that a repository's Cloudflare Worker has a valid configuration and bundles, without
-# deploying it and without Cloudflare credentials. It is self-contained, not a shared workflow, and
-# is meant to be copied to the repositories that host a Worker. In any other repository it passes
-# without checking anything, so it is harmless where it doesn't apply.
+name: Validate
+# Validates that a repository's Cloudflare Worker has a valid configuration and bundles, without
+# deploying it and without Cloudflare credentials. It is self-contained, not a shared workflow.
+#
+# This is a workflow template of actions-fyi/.github: it lives in workflow-templates, runs nowhere
+# on its own, and is offered under Actions > New workflow to the org's repositories that have a
+# Wrangler config at their root. A repository that hosts a Worker adds it from there, which copies
+# it to its own .github/workflows; $default-branch below becomes that repository's default branch.
+# A copy doesn't follow later changes to the template.
 #
 # The worker job decides whether there is a Worker to check: a wrangler.toml, wrangler.json or
 # wrangler.jsonc at the repository's root. If not, the check job is skipped, and the run still
@@ -30,20 +34,20 @@ name: Check Cloudflare Worker
 # no cache. Never pass it CLOUDFLARE_API_TOKEN or CLOUDFLARE_ACCOUNT_ID.
 #
 # On pull requests and merge groups it is the gate; a merge queue waits for every required check,
-# so it also runs on merge_group, where it checks the merged result. On a push to main it gates
-# nothing: it reports a default branch that broke without a pull request.
+# so it also runs on merge_group, where it checks the merged result. On a push to the default branch
+# it gates nothing: it reports a default branch that broke without a pull request.
 on:
   pull_request:
   merge_group:
   push:
-    branches: ["main"]
+    branches: [$default-branch]
 
 permissions: {}
 
 # github.ref is refs/pull/<number>/merge for a pull request, a unique
 # refs/heads/gh-readonly-queue/<base>/pr-<number>-<sha> for each merge group entry, and the branch
-# for a push. So only a pull request's own earlier run is cancelled, and a push to main never
-# cancels a run that has started.
+# for a push. So only a pull request's own earlier run is cancelled, and a push to the default
+# branch never cancels a run that has started.
 concurrency:
   group: cloudflare-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
