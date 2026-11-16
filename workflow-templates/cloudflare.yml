@@ -21,4 +21,4 @@ jobs:
     # What the jobs of _cloudflare.yml declare; a called job can't get more.
     permissions:
       contents: read # Read the Wrangler config and check the repository out
-    uses: actions-fyi/shared-workflows/.github/workflows/_cloudflare.yml@v1.0.0
+    uses: actions-fyi/shared-workflows/.github/workflows/_cloudflare.yml@v1.1.0
