@@ -6,7 +6,7 @@ name: Explain Actions Lockfile
 # actions-fyi/ruleset-workflows is renamed; after that it can be removed.
 on:
   workflow_run:
-    workflows: ["Check Actions Lockfile", "Validate Actions Lockfile"]
+    workflows: ["Validate Actions Lockfile"]
     types: [completed]
 
 permissions: {}
