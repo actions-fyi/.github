@@ -5,7 +5,7 @@ name: PR Metadata
 # actions-fyi/ruleset-workflows is renamed; after that it can be removed.
 on:
   workflow_run:
-    workflows: ["Check Metadata", "Lint Metadata"]
+    workflows: ["Lint Metadata"]
     types: [completed]
 
 permissions: {}
