@@ -3,7 +3,7 @@
   "extends": ["github>actions-fyi/.github"],
   "packageRules": [
     {
-      "description": "This repo's workflows hold the org's shared config and trust policies, so external releases wait 2 days instead of the preset's 1; actions-fyi's keep the preset's 30 minutes",
+      "description": "This repo's workflows hold the org's shared config and trust policies, so external releases wait 2 days instead of the preset's 1",
       "matchUpdateTypes": ["major", "minor", "patch", "digest"],
       "matchPackageNames": [
         "!actions-fyi/**",
@@ -12,6 +12,17 @@
         "!@actions-fyi/**"
       ],
       "minimumReleaseAge": "2 days"
+    },
+    {
+      "description": "actions-fyi's own releases wait 30 minutes here, where the preset has no wait",
+      "matchUpdateTypes": ["major", "minor", "patch", "digest"],
+      "matchPackageNames": [
+        "actions-fyi/**",
+        "github.com/actions-fyi/**",
+        "ghcr.io/actions-fyi/**",
+        "@actions-fyi/**"
+      ],
+      "minimumReleaseAge": "30 minutes"
     }
   ]
 }

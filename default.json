@@ -24,7 +24,7 @@
       "minimumReleaseAge": "1 day"
     },
     {
-      "description": "actions-fyi's own releases only wait 30 minutes",
+      "description": "actions-fyi's own releases don't wait",
       "matchUpdateTypes": ["major", "minor", "patch", "digest"],
       "matchPackageNames": [
         "actions-fyi/**",
@@ -32,7 +32,7 @@
         "ghcr.io/actions-fyi/**",
         "@actions-fyi/**"
       ],
-      "minimumReleaseAge": "30 minutes"
+      "minimumReleaseAge": null
     },
     {
       "description": "Actions are pinned by .github/workflows/actions.lock, so keep readable tags; reusable workflows and images are not in the lockfile and stay digest-pinned, except actions-fyi's",
