@@ -14,8 +14,8 @@
   "gitIgnoredAuthors": ["157150467+octo-sts[bot]@users.noreply.github.com"],
   "packageRules": [
     {
-      "description": "Merge non-major updates automatically once required checks pass",
-      "matchUpdateTypes": ["minor", "patch", "pin", "pinDigest", "digest"],
+      "description": "Merge non-major updates automatically once required checks pass. Digest updates aren't merged automatically: the same version with new content means a moved tag, a rebuilt image or a new commit on a tracked branch, none of which went through a release",
+      "matchUpdateTypes": ["minor", "patch", "pin", "pinDigest"],
       "automerge": true
     },
     {
