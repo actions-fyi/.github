@@ -1,4 +1,17 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["github>actions-fyi/.github"]
+  "extends": ["github>actions-fyi/.github"],
+  "packageRules": [
+    {
+      "description": "This repo's workflows hold the org's shared config and trust policies, so external releases wait 2 days instead of the preset's 1; actions-fyi's keep the preset's 30 minutes",
+      "matchUpdateTypes": ["major", "minor", "patch", "digest"],
+      "matchPackageNames": [
+        "!actions-fyi/**",
+        "!github.com/actions-fyi/**",
+        "!ghcr.io/actions-fyi/**",
+        "!@actions-fyi/**"
+      ],
+      "minimumReleaseAge": "2 days"
+    }
+  ]
 }

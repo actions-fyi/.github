@@ -19,6 +19,22 @@
       "automerge": true
     },
     {
+      "description": "Wait a day after a release before raising the update. Overrides the 3 days config:best-practices sets for npm. Pins, replacements, lock file maintenance and other update types without a new release are left out, as security:minimumReleaseAgeNpm does",
+      "matchUpdateTypes": ["major", "minor", "patch", "digest"],
+      "minimumReleaseAge": "1 day"
+    },
+    {
+      "description": "actions-fyi's own releases only wait 30 minutes",
+      "matchUpdateTypes": ["major", "minor", "patch", "digest"],
+      "matchPackageNames": [
+        "actions-fyi/**",
+        "github.com/actions-fyi/**",
+        "ghcr.io/actions-fyi/**",
+        "@actions-fyi/**"
+      ],
+      "minimumReleaseAge": "30 minutes"
+    },
+    {
       "description": "Actions are pinned by .github/workflows/actions.lock, so keep readable tags; reusable workflows and images are not in the lockfile and stay digest-pinned, except actions-fyi's",
       "matchManagers": ["github-actions"],
       "matchDepTypes": ["action"],
