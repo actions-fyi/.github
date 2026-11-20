@@ -14,9 +14,25 @@
   "gitIgnoredAuthors": ["157150467+octo-sts[bot]@users.noreply.github.com"],
   "packageRules": [
     {
-      "description": "Merge non-major updates automatically once required checks pass",
-      "matchUpdateTypes": ["minor", "patch", "pin", "pinDigest", "digest"],
+      "description": "Merge non-major updates automatically once required checks pass. Digest updates aren't merged automatically: the same version with new content means a moved tag, a rebuilt image or a new commit on a tracked branch, none of which went through a release",
+      "matchUpdateTypes": ["minor", "patch", "pin", "pinDigest"],
       "automerge": true
+    },
+    {
+      "description": "Wait a day after a release before raising the update. Overrides the 3 days config:best-practices sets for npm. Pins, replacements, lock file maintenance and other update types without a new release are left out, as security:minimumReleaseAgeNpm does",
+      "matchUpdateTypes": ["major", "minor", "patch", "digest"],
+      "minimumReleaseAge": "1 day"
+    },
+    {
+      "description": "actions-fyi's own releases don't wait",
+      "matchUpdateTypes": ["major", "minor", "patch", "digest"],
+      "matchPackageNames": [
+        "actions-fyi/**",
+        "github.com/actions-fyi/**",
+        "ghcr.io/actions-fyi/**",
+        "@actions-fyi/**"
+      ],
+      "minimumReleaseAge": null
     },
     {
       "description": "Actions are pinned by .github/workflows/actions.lock, so keep readable tags; reusable workflows and images are not in the lockfile and stay digest-pinned, except actions-fyi's",
