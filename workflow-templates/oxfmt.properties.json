@@ -1,0 +1,7 @@
+{
+  "name": "oxfmt",
+  "description": "Format pull requests with oxfmt and let autofix.ci commit the result. Needs the autofix.ci GitHub App.",
+  "iconName": "octicon tools",
+  "categories": ["Continuous integration", "JavaScript", "TypeScript"],
+  "filePatterns": ["^\\.oxfmtrc\\.json$"]
+}
