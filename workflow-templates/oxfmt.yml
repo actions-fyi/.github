@@ -1,0 +1,24 @@
+name: autofix.ci
+# A workflow template of actions-fyi/.github: a repository that formats with oxfmt adds it from
+# Actions > New workflow, after installing the autofix.ci GitHub App (https://autofix.ci/setup). On
+# each pull request it runs oxfmt and lets autofix.ci commit what that changed. The job lives in
+# _oxfmt.yml of actions-fyi/shared-workflows; see there.
+# A repository that adds it gets a copy, which doesn't follow later changes to the template.
+#
+# autofix.ci identifies the run by its workflow name, so this file must keep `name: autofix.ci`.
+# It can't be an org ruleset workflow like the other checks: the app needs a workflow in the
+# repository itself, so this caller covers every event it runs on.
+#
+# Pull requests only: on the default branch autofix.ci would commit directly, around review.
+on:
+  pull_request:
+
+permissions: {}
+
+jobs:
+  oxfmt:
+    name: oxfmt
+    # What the oxfmt job of _oxfmt.yml declares; a called job can't get more.
+    permissions:
+      contents: read # Check the repository out
+    uses: actions-fyi/shared-workflows/.github/workflows/_oxfmt.yml@v4.0.0
