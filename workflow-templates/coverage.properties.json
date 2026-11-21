@@ -1,7 +1,0 @@
-{
-  "name": "Report Coverage",
-  "description": "Report the coverage of the repository's test runs to the providers its coverage-providers custom property names: GitHub Code Quality and DeepSource.",
-  "iconName": "octicon graph",
-  "categories": ["Continuous integration", "JavaScript", "TypeScript"],
-  "filePatterns": ["^package\\.json$"]
-}

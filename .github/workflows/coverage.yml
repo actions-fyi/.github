@@ -1,19 +1,20 @@
 name: Report Coverage
-# A workflow template of actions-fyi/.github: a repository with tests adds it from Actions > New
-# workflow. It is a template rather than a workflow of this repository, which every repository
-# would get, so only repositories with tests have it. It reports the coverage of the test runs to
-# the providers the repository's custom property coverage-providers names; without the property,
-# nothing is reported. The reporting lives in _coverage.yml of actions-fyi/shared-workflows; see
-# there for what each provider needs.
+# Reports the coverage of the test runs to the providers the repository's custom property
+# coverage-providers names; without the property, nothing is reported. The reporting lives in
+# _coverage.yml of actions-fyi/shared-workflows; see there for what each provider needs. Like every
+# workflow here, it is distributed to the org's repositories, and each of them has it.
 #
-# A workflow_run trigger matches workflows by name, not by file. Test is the TypeScript template's
-# workflow, on pushes to the default branch. Test TypeScript is the org ruleset workflow, on pull
-# requests. The check of another language joins the list under its own name.
+# It needs no opt-in: it runs only after a test run, and reports only the coverage artifacts that
+# run uploaded. A repository without tests uploads none, so there it reports nothing, and without
+# a test workflow it doesn't start at all. A workflow_run trigger matches workflows by name, not by
+# file. Test is the TypeScript template's workflow, on pushes to the default branch. Test
+# TypeScript is the org ruleset workflow, on pull requests; it runs in every repository the ruleset
+# targets, and where it finds no package it uploads no coverage. The check of another language
+# joins the list under its own name.
 #
 # The file must keep the name coverage.yml: zizmor's dangerous-triggers audit of _zizmor.yml
 # exempts this workflow_run listener by file name. A listener runs from the default branch only,
 # so a pull request that adds or changes it isn't tested by it: the change runs once it's merged.
-# A repository that adds it gets a copy, which doesn't follow later changes to the template.
 on:
   workflow_run:
     workflows: ["Test", "Test TypeScript"]
