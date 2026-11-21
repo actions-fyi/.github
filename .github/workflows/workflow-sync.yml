@@ -25,6 +25,7 @@ on:
       - .github/workflows/*.yaml
       - workflow-templates/*.yml
       - workflow-templates/*.yaml
+      - .github/egress-firewall.yaml
   schedule:
     - cron: "43 3 * * *"
   repository_dispatch:
