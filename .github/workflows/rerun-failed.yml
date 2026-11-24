@@ -1,0 +1,32 @@
+name: Re-run Failed Jobs
+# Re-runs the failed jobs of a failed run, up to twice, when Jev, Electron Hub's decision model,
+# classifies every failure as transient: a runner, network or service problem that a re-run
+# without changes is likely to fix, rather than one the code causes. The classification and the
+# re-run live in _rerun-failed.yml of actions-fyi/shared-workflows; see there. Like every workflow
+# here, it is distributed to the org's repositories, and each of them has it.
+#
+# It needs the org secret ELECTRONHUB_API_KEY; without it, nothing is re-run. A repository keeps it
+# out with WORKFLOW_SYNC_EXCLUDE, like any synced workflow.
+#
+# "**" matches every workflow by name, this one included, which _rerun-failed.yml skips. The file
+# must keep the name rerun-failed.yml: zizmor's dangerous-triggers audit of _zizmor.yml exempts
+# this workflow_run listener by file name. A listener runs from the default branch only, so a pull
+# request that adds or changes it isn't tested by it: the change runs once it's merged.
+on:
+  workflow_run:
+    workflows: ["**"]
+    types: [completed]
+
+permissions: {}
+
+jobs:
+  rerun:
+    name: Re-run Failed Jobs
+    cache-mode: none
+    # What the rerun job of _rerun-failed.yml declares; a called job can't get more.
+    permissions:
+      actions: write # Read the run's jobs and logs, and re-run its failed jobs
+      contents: read # Let the egress firewall read its policy
+    uses: actions-fyi/shared-workflows/.github/workflows/_rerun-failed.yml@v4.2.0
+    secrets:
+      ELECTRONHUB_API_KEY: ${{ secrets.ELECTRONHUB_API_KEY }}
