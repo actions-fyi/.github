@@ -12,8 +12,12 @@
 # - secrets.actions.fyi and promptguard.actions.fyi, OpenBao and TEI: only the Prompt Guard job
 #   reaches them, and it can't run on the firewall runner yet (actions-native-egress-firewall#39).
 #
-# mode: log records every request and blocks none. Switch to enforce once a round of runs shows no
-# request outside the list in their firewall-decisions artifacts.
+# mode: log records every request and blocks none. A repository opts in to enforce with its custom
+# property firewall: where it is true, the sync of actions-fyi/sync-workflows writes mode: enforce
+# into the repository's copy. Set it once a round of the repository's runs shows no request outside
+# the list in their firewall-decisions artifacts. This repository's own copy is the source and
+# isn't synced, so the property doesn't change it, nor actions-fyi/shared-workflows', which keeps
+# its own.
 mode: log
 allow:
   # GitHub, beyond the defaults
