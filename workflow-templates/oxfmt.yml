@@ -21,4 +21,4 @@ jobs:
     # What the oxfmt job of _oxfmt.yml declares; a called job can't get more.
     permissions:
       contents: read # Check the repository out
-    uses: actions-fyi/shared-workflows/.github/workflows/_oxfmt.yml@v4.1.0
+    uses: actions-fyi/shared-workflows/.github/workflows/_oxfmt.yml@v4.2.0
