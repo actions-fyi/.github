@@ -44,5 +44,3 @@ allow:
   # DeepSource: _coverage.yml's report job, where coverage-providers names deepsource
   - cli.deepsource.com # the CLI's download
   - app.deepsource.com # the CLI's API: the OIDC exchange and the report
-  # Electron Hub: Jev, the decision model that _rerun-failed.yml asks whether a failure is transient
-  - api.electronhub.ai # the Decisions API
