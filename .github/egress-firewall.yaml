@@ -47,4 +47,4 @@ allow:
   - tmaproduction.blob.core.windows.net # GitHub's TUF trust root storage
   # DeepSource: _coverage.yml's report job, where coverage-providers names deepsource
   - cli.deepsource.com # the CLI's download
-  
+  - app.deepsource.com # the CLI's API: the OIDC exchange and the report
