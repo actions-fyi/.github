@@ -1,0 +1,23 @@
+name: Relay Title Edit
+# Lint Metadata, the org ruleset workflow that checks the title, starts no run when a title is
+# edited, since rulesets ignore the edited activity type. This relays the edit: its run's completion
+# starts the PR Metadata listener, pr-metadata.yml, which re-runs Lint Metadata when the title
+# changed. The relay lives in _title-edit.yml of actions-fyi/shared-workflows; see there. Like every
+# workflow here, it is distributed to the org's repositories, and each of them has it.
+#
+# pr-metadata.yml listens to runs of this name, so the name must not change without it.
+on:
+  pull_request:
+    types: [edited]
+
+permissions: {}
+
+jobs:
+  title-edit:
+    name: Title Edit
+    # Not in a fork: nothing there listens for this run.
+    if: github.repository_owner == 'actions-fyi'
+    # What the relay job of _title-edit.yml declares; a called job can't get more.
+    permissions:
+      contents: read # The egress firewall reads .github/egress-firewall.yaml with this token
+    uses: actions-fyi/shared-workflows/.github/workflows/_title-edit.yml@v4.4.0

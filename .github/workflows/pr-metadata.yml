@@ -3,9 +3,14 @@ name: PR Metadata
 # this listener, which runs with the secrets and a write token, for fork pull requests too.
 # "Check Metadata" is the old name. It stays until the org ruleset workflow of
 # actions-fyi/ruleset-workflows is renamed; after that it can be removed.
+#
+# A title edit starts no run of Lint Metadata, so the same listener also follows Relay Title Edit,
+# title-edit.yml, which runs on edited pull requests, where the rerun job re-runs Lint Metadata when
+# the title changed; see _metadata-rerun.yml. Each job runs only on its own workflows' runs, and the
+# rerun job gets no secrets.
 on:
   workflow_run:
-    workflows: ["Lint Metadata"]
+    workflows: ["Lint Metadata", "Relay Title Edit"]
     types: [completed]
 
 permissions: {}
@@ -14,7 +19,9 @@ jobs:
   metadata:
     name: Metadata
     # Not in a fork: Claude and Prompt Guard need the org's secrets, which a fork doesn't get.
-    if: github.repository_owner == 'actions-fyi'
+    if: >-
+      github.repository_owner == 'actions-fyi'
+      && github.event.workflow_run.name == 'Lint Metadata'
     cache-mode: none
     permissions:
       actions: write # Re-run the failed Lint Metadata jobs
@@ -22,9 +29,23 @@ jobs:
       id-token: write # Log in to OpenBao for Prompt Guard
       issues: write # Read the repository's labels, label the pull request, and escalate a flag
       pull-requests: write # Read the pull request; apply the title, labels and description
-    uses: actions-fyi/shared-workflows/.github/workflows/_pr-metadata.yml@v4.3.0
+    uses: actions-fyi/shared-workflows/.github/workflows/_pr-metadata.yml@v4.4.0
     secrets:
       CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
       PROMPT_GUARD_CLIENT_ID: ${{ secrets.PROMPT_GUARD_CLIENT_ID }}
       CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
       CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+
+  rerun:
+    name: Re-run Lint Metadata
+    # Not in a fork: nothing there listens for the runs it would re-run.
+    if: >-
+      github.repository_owner == 'actions-fyi'
+      && github.event.workflow_run.name == 'Relay Title Edit'
+    # A low-trust trigger: the rerun job needs no cache.
+    cache-mode: none
+    # What the rerun job of _metadata-rerun.yml declares; a called job can't get more.
+    permissions:
+      actions: write # Read the relay run's jobs; re-run the Lint Metadata runs
+      contents: read # The egress firewall reads .github/egress-firewall.yaml with this token
+    uses: actions-fyi/shared-workflows/.github/workflows/_metadata-rerun.yml@v4.4.0
