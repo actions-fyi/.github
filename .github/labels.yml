@@ -58,3 +58,6 @@
 - name: workflows
   color: 2DA37B
   description: Anything affecting GitHub Actions
+- name: on hold
+  color: F7B622
+  description: This is held until conditions are met
