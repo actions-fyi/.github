@@ -125,6 +125,13 @@ remotes:
       labels:
         contents: read
         issues: write
+  actions-fyi/shared-workflows/.github/workflows/_metadata-rerun.yml@v4.3.0:
+    sha: 2fd645600c3a9c850dadc5298a1844be2820318c
+    kind: workflow
+    jobPermissions:
+      rerun:
+        contents: read
+        actions: write
   actions-fyi/shared-workflows/.github/workflows/_pr-metadata.yml@v4.3.0:
     sha: 2fd645600c3a9c850dadc5298a1844be2820318c
     kind: workflow

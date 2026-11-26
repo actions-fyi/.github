@@ -1,12 +1,18 @@
 name: PR Metadata
 # Lint Metadata is the org ruleset workflow that checks the title. Its runs on pull requests start
 # this listener, which runs with the secrets and a write token, for fork pull requests too.
-# "Check Metadata" is the old name. It stays until the org ruleset workflow of
-# actions-fyi/ruleset-workflows is renamed; after that it can be removed.
+#
+# A title edit starts no run of Lint Metadata, so this workflow also runs on edited pull requests,
+# where the rerun job re-runs it when the title changed; see _metadata-rerun.yml of
+# actions-fyi/shared-workflows. That is a plain pull_request run, so it does nothing for fork pull
+# requests, whose token is read-only. Each job runs only on its own event, and the rerun job gets
+# no secrets.
 on:
   workflow_run:
     workflows: ["Lint Metadata"]
     types: [completed]
+  pull_request:
+    types: [edited]
 
 permissions: {}
 
@@ -14,7 +20,7 @@ jobs:
   metadata:
     name: Metadata
     # Not in a fork: Claude and Prompt Guard need the org's secrets, which a fork doesn't get.
-    if: github.repository_owner == 'actions-fyi'
+    if: github.repository_owner == 'actions-fyi' && github.event_name == 'workflow_run'
     cache-mode: none
     permissions:
       actions: write # Re-run the failed Lint Metadata jobs
@@ -28,3 +34,15 @@ jobs:
       PROMPT_GUARD_CLIENT_ID: ${{ secrets.PROMPT_GUARD_CLIENT_ID }}
       CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
       CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+
+  rerun:
+    name: Re-run Lint Metadata
+    # Not in a fork: nothing there listens for the runs it would re-run.
+    if: github.repository_owner == 'actions-fyi' && github.event_name == 'pull_request'
+    # The rerun job needs no cache.
+    cache-mode: none
+    # What the rerun job of _metadata-rerun.yml declares; a called job can't get more.
+    permissions:
+      actions: write # Re-run the Lint Metadata runs
+      contents: read # The egress firewall reads .github/egress-firewall.yaml with this token
+    uses: actions-fyi/shared-workflows/.github/workflows/_metadata-rerun.yml@v4.3.0
